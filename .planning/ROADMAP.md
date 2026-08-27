@@ -8,7 +8,7 @@ Refactor and harden the Flightscanner service from a single-file prototype into 
 
 - [x] **Phase 1: Architecture & Multi-Source Configuration** - Package setup, service modularization, and config loading (/etc, .env, defaults) (completed 2026-08-27)
 - [x] **Phase 2: Multi-Provider Flight Enrichment & Caching** - Flightradar24 client, adsbdb.com fallback, CSV parser, and TTL cache (completed 2026-08-27)
-- [ ] **Phase 3: Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier** - Debounced watcher, bounding box filter, cooldown queue, and MQTT publisher
+- [x] **Phase 3: Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier** - Debounced watcher, bounding box filter, cooldown queue, and MQTT publisher (completed 2026-08-27)
 - [ ] **Phase 4: Systemd Service Integration & Automated Test Suite** - Comprehensive unit tests, systemd unit file, and daemon installation guide
 
 ## Phase Details
@@ -68,8 +68,8 @@ Plans:
 
 Plans:
 
-- [ ] 03-01: Build debounced dump1090 watcher, bounding box filter, and multi-aircraft cooldown tracker
-- [ ] 03-02: Build Awtrix MQTT publisher with icon mapping, German message formatting, and reconnect handling
+- [x] 03-01: Build debounced dump1090 watcher, bounding box filter, and multi-aircraft cooldown tracker
+- [x] 03-02: Build Awtrix MQTT publisher with icon mapping, German message formatting, and reconnect handling
 
 ### Phase 4: Systemd Service Integration & Automated Test Suite
 
@@ -96,5 +96,5 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Architecture & Multi-Source Configuration | 2/2 | Complete    | 2026-08-27 |
 | 2. Multi-Provider Flight Enrichment & Caching | 2/2 | Complete    | 2026-08-27 |
-| 3. Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier | 0/2 | Not started | - |
+| 3. Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier | 2/2 | Complete    | 2026-08-27 |
 | 4. Systemd Service Integration & Automated Test Suite | 0/2 | Not started | - |

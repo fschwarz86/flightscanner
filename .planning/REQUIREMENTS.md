@@ -22,16 +22,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Tracking & Multi-Aircraft Queue (TRACK)
 
-- [ ] **TRACK-01**: Non-blocking dump1090 file watcher on `/run/dump1090-fa/aircraft.json` with debounced, safe JSON parsing
-- [ ] **TRACK-02**: Spatial & altitude filter evaluating all aircraft against coordinate boundaries and altitude limits
-- [ ] **TRACK-03**: Multi-aircraft evaluation queue to track and process all qualifying aircraft in the geofence
-- [ ] **TRACK-04**: Per-flight callsign cooldown tracking with TTL (10-15m) to prevent repeated notification bursts
+- [x] **TRACK-01**: Non-blocking dump1090 file watcher on `/run/dump1090-fa/aircraft.json` with debounced, safe JSON parsing
+- [x] **TRACK-02**: Spatial & altitude filter evaluating all aircraft against coordinate boundaries and altitude limits
+- [x] **TRACK-03**: Multi-aircraft evaluation queue to track and process all qualifying aircraft in the geofence
+- [x] **TRACK-04**: Per-flight callsign cooldown tracking with TTL (10-15m) to prevent repeated notification bursts
 
 ### Notifications & MQTT Output (NOTIFY)
 
-- [ ] **NOTIFY-01**: Awtrix MQTT publisher with automatic reconnection and error isolation publishing to `awtrix/cmd/notify`
-- [ ] **NOTIFY-02**: Airline icon mapping table for major carriers (Lufthansa, Swiss, BA, Turkish, SAS, KLM, Iberia, Emirates, Air France, ITA, Eurowings, etc.) with default fallback
-- [ ] **NOTIFY-03**: German localized notification string formatting with directional indicators (`-> {Destination}` / `<- {Origin}`)
+- [x] **NOTIFY-01**: Awtrix MQTT publisher with automatic reconnection and error isolation publishing to `awtrix/cmd/notify`
+- [x] **NOTIFY-02**: Airline icon mapping table for major carriers (Lufthansa, Swiss, BA, Turkish, SAS, KLM, Iberia, Emirates, Air France, ITA, Eurowings, etc.) with default fallback
+- [x] **NOTIFY-03**: German localized notification string formatting with directional indicators (`-> {Destination}` / `<- {Origin}`)
 
 ### Quality & Testing (TEST)
 
@@ -68,13 +68,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENRICH-02 | Phase 2 | Complete |
 | ENRICH-03 | Phase 2 | Complete |
 | ENRICH-04 | Phase 2 | Complete |
-| TRACK-01 | Phase 3 | Pending |
-| TRACK-02 | Phase 3 | Pending |
-| TRACK-03 | Phase 3 | Pending |
-| TRACK-04 | Phase 3 | Pending |
-| NOTIFY-01 | Phase 3 | Pending |
-| NOTIFY-02 | Phase 3 | Pending |
-| NOTIFY-03 | Phase 3 | Pending |
+| TRACK-01 | Phase 3 | Complete |
+| TRACK-02 | Phase 3 | Complete |
+| TRACK-03 | Phase 3 | Complete |
+| TRACK-04 | Phase 3 | Complete |
+| NOTIFY-01 | Phase 3 | Complete |
+| NOTIFY-02 | Phase 3 | Complete |
+| NOTIFY-03 | Phase 3 | Complete |
 | TEST-01 | Phase 4 | Pending |
 
 **Coverage:**
