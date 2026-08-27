@@ -1,6 +1,6 @@
 const { fetchFlightradarData } = require("./flightradar");
 const { fetchAdsbdbData } = require("./adsbdb");
-const { loadAircraftTypes, lookupAircraftType } = require("./csv-aircraft");
+const { loadAircraftTypes, lookupAircraftType, clearAircraftTypes } = require("./csv-aircraft");
 const { logger } = require("../../utils/logger");
 
 function createEnricher(options = {}) {
@@ -115,5 +115,6 @@ module.exports = {
   fetchFlightradarData,
   fetchAdsbdbData,
   loadAircraftTypes,
-  lookupAircraftType
+  lookupAircraftType,
+  clearAircraftTypes
 };
