@@ -57,8 +57,8 @@ const AIRLINE_REGISTRY = [
   },
   {
     icon: 24608,
-    names: ["Scandinavian Airlines System", "Scandinavian Airlines", "SAS", "Finnair", "Widerøe"],
-    codes: ["SK", "SAS", "DY", "D8", "AY", "FIN", "WF", "WIF"]
+    names: ["Scandinavian Airlines System", "Scandinavian Airlines", "SAS"],
+    codes: ["SK", "SAS", "DY", "D8"]
   },
   {
     icon: 52217,
