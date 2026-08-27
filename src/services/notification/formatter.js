@@ -107,7 +107,9 @@ function formatNotificationText(flightData = {}) {
   const displayCallsign = flightCode && flightCode !== "Unbekannt" ? flightCode : "";
   const origin = flightData.origin && flightData.origin !== "Unbekannt" ? flightData.origin : "";
   const destination = flightData.destination && flightData.destination !== "Unbekannt" ? flightData.destination : "";
-  const aircraft = flightData.aircraft && flightData.aircraft !== "Unbekannt" ? flightData.aircraft : "";
+  const aircraft = (flightData.aircraft && flightData.aircraft !== "Unbekannt")
+    ? flightData.aircraft
+    : (flightData.aircraftIcao && flightData.aircraftIcao !== "Unbekannt" ? flightData.aircraftIcao : "");
 
   const flightLabel = airline ? `${airline} Flug ${displayCallsign}`.trim() : (displayCallsign ? `Flug ${displayCallsign}` : "Flug");
   const aircraftTag = aircraft ? ` (${aircraft})` : "";
@@ -129,6 +131,9 @@ function formatNotificationText(flightData = {}) {
   }
 
   if (!origin && !destination && !airline) {
+    if (aircraft) {
+      return `${flightLabel}${aircraftTag}`;
+    }
     return `${flightLabel} (keine Daten)`;
   }
 

@@ -99,16 +99,18 @@ function createEnricher(options = {}) {
     }
 
     // 5. Final fallback object if all lookups failed
+    const resolvedAircraft = enriched?.aircraft || (rawIcao ? (lookupAircraftType(rawIcao) || rawIcao) : "Unbekannt");
+
     const finalFlight = {
       callsign: enriched?.callsign || callsign || "Unbekannt",
       flightNumberIata: enriched?.flightNumberIata || "",
       airline: enriched?.airline || "Unbekannte Fluggesellschaft",
       origin: enriched?.origin || "Unbekannt",
       destination: enriched?.destination || "Unbekannt",
-      aircraft: enriched?.aircraft || (rawIcao ? `Flugzeug (${rawIcao})` : "Unbekannt"),
+      aircraft: resolvedAircraft,
       aircraftIcao: enriched?.aircraftIcao || rawIcao || "",
       registration: enriched?.registration || registration || hex || "",
-      source: enriched?.source || usedProvider
+      source: enriched?.source || (usedProvider === "fallback" && rawIcao ? "telemetry_type" : usedProvider)
     };
 
     logger.debug(`[ENRICH] Flight ${cacheKey || "unknown"} finalized using provider: "${finalFlight.source}" (airline: "${finalFlight.airline}", route: "${finalFlight.origin}" -> "${finalFlight.destination}", aircraft: "${finalFlight.aircraft}")`);

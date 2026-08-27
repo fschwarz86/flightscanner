@@ -84,7 +84,21 @@ describe("Formatter Module", () => {
       assert.equal(text, "Lufthansa Flug DLH999 (A320) im Anflug");
     });
 
-    it("should format fallback when no route data is known", () => {
+    it("should format flight with aircraft type when no route or airline data is known", () => {
+      const flightWithModel = {
+        callsign: "PRIV01",
+        aircraft: "Cessna 172 Skyhawk"
+      };
+      assert.equal(formatNotificationText(flightWithModel), "Flug PRIV01 (Cessna 172 Skyhawk)");
+
+      const flightWithIcao = {
+        callsign: "PRIV02",
+        aircraftIcao: "PA28"
+      };
+      assert.equal(formatNotificationText(flightWithIcao), "Flug PRIV02 (PA28)");
+    });
+
+    it("should format fallback when no route, airline, or aircraft data is known", () => {
       const flight = {
         callsign: "TEST01"
       };
