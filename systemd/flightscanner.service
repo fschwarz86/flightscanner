@@ -1,7 +1,7 @@
 [Unit]
 Description=Flightscanner ADS-B Matrix Display Service
 Documentation=https://github.com/fschwarz/flightscanner
-After=network.target dump1090-fa.service mosquitto.service
+After=network.target dump1090-fa.service
 Wants=dump1090-fa.service
 
 [Service]

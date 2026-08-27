@@ -31,24 +31,24 @@ describe("Formatter Module", () => {
 
     it("should match icon from unified registry by full name, IATA, or ICAO code", () => {
       // Ryanair
-      assert.equal(getAirlineIcon({ airline: "Ryanair" }), 24601);
-      assert.equal(getAirlineIcon({ flightNumberIata: "FR1234" }), 24601);
-      assert.equal(getAirlineIcon({ callsign: "RYR456" }), 24601);
+      assert.equal(getAirlineIcon({ airline: "Ryanair" }), 74926);
+      assert.equal(getAirlineIcon({ flightNumberIata: "FR1234" }), 74926);
+      assert.equal(getAirlineIcon({ callsign: "RYR456" }), 74926);
 
       // easyJet
-      assert.equal(getAirlineIcon({ airline: "easyJet" }), 24606);
-      assert.equal(getAirlineIcon({ flightNumberIata: "U2881" }), 24606);
-      assert.equal(getAirlineIcon({ callsign: "EZY881" }), 24606);
+      assert.equal(getAirlineIcon({ airline: "easyJet" }), 74940);
+      assert.equal(getAirlineIcon({ flightNumberIata: "U2881" }), 74940);
+      assert.equal(getAirlineIcon({ callsign: "EZY881" }), 74940);
 
       // Condor
-      assert.equal(getAirlineIcon({ airline: "Condor" }), 24600);
-      assert.equal(getAirlineIcon({ flightNumberIata: "DE150" }), 24600);
-      assert.equal(getAirlineIcon({ callsign: "CFG150" }), 24600);
+      assert.equal(getAirlineIcon({ airline: "Condor" }), 77081);
+      assert.equal(getAirlineIcon({ flightNumberIata: "DE150" }), 77081);
+      assert.equal(getAirlineIcon({ callsign: "CFG150" }), 77081);
 
       // Wizz Air
-      assert.equal(getAirlineIcon({ airline: "Wizz Air" }), 24610);
-      assert.equal(getAirlineIcon({ flightNumberIata: "W61234" }), 24610);
-      assert.equal(getAirlineIcon({ callsign: "WZZ1234" }), 24610);
+      assert.equal(getAirlineIcon({ airline: "Wizz Air" }), 74943);
+      assert.equal(getAirlineIcon({ flightNumberIata: "W61234" }), 74943);
+      assert.equal(getAirlineIcon({ callsign: "WZZ1234" }), 74943);
     });
 
     it("should match partial airline names from registry", () => {

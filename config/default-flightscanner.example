@@ -7,8 +7,10 @@ DUMP1090_FILE_PATH=/run/dump1090-fa/aircraft.json
 # Path to local ICAO aircraft types CSV
 AIRCRAFT_TYPES_CSV_PATH=/etc/flightdata/aircraft_types.csv
 
-# MQTT Broker connection
+# MQTT Broker connection & credentials
 MQTT_BROKER_URL=mqtt://homeassistant:1883
+MQTT_USERNAME=
+MQTT_PASSWORD=
 MQTT_TOPIC=awtrix/cmd/notify
 MQTT_CLIENT_ID=flightscanner
 

@@ -3,6 +3,8 @@
   "aircraftTypesCsvPath": "/etc/flightdata/aircraft_types.csv",
   "mqtt": {
     "brokerUrl": "mqtt://homeassistant:1883",
+    "username": "",
+    "password": "",
     "topic": "awtrix/cmd/notify",
     "clientId": "flightscanner"
   },
