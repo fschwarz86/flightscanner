@@ -1,0 +1,92 @@
+const { describe, it } = require("node:test");
+const assert = require("node:assert/strict");
+const {
+  getAirlineIcon,
+  formatNotificationText,
+  formatNotificationPayload,
+  DEFAULT_ICON
+} = require("../src/services/notification/formatter");
+
+describe("Formatter Module", () => {
+  describe("getAirlineIcon", () => {
+    it("should match icon by exact airline name", () => {
+      assert.equal(getAirlineIcon({ airline: "Lufthansa" }), 24591);
+      assert.equal(getAirlineIcon({ airline: "Eurowings" }), 58999);
+      assert.equal(getAirlineIcon({ airline: "Air France" }), 52241);
+    });
+
+    it("should match icon by callsign prefix", () => {
+      assert.equal(getAirlineIcon({ callsign: "DLH123" }), 24591);
+      assert.equal(getAirlineIcon({ callsign: "EWG40P" }), 58999);
+      assert.equal(getAirlineIcon({ callsign: "SWR26W" }), 24604);
+      assert.equal(getAirlineIcon({ callsign: "KLM1780" }), 24528);
+    });
+
+    it("should fallback to default icon for unknown airlines", () => {
+      assert.equal(getAirlineIcon({ airline: "Unknown Jet", callsign: "N12345" }), DEFAULT_ICON);
+      assert.equal(getAirlineIcon({}), DEFAULT_ICON);
+    });
+  });
+
+  describe("formatNotificationText", () => {
+    it("should format Hamburg arrival flight text", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH123",
+        origin: "MUC",
+        destination: "Hamburg (HAM)",
+        aircraft: "Airbus A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) MUC -> Hamburg (HAM)");
+    });
+
+    it("should format departure from Hamburg", () => {
+      const flight = {
+        airline: "Eurowings",
+        callsign: "EWG40P",
+        origin: "HAM",
+        destination: "ARN",
+        aircraft: "Airbus A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Eurowings Flug EWG40P (Airbus A320) -> ARN");
+    });
+
+    it("should format flight when origin/destination are missing", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH999",
+        aircraft: "A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug DLH999 (A320) im Anflug");
+    });
+
+    it("should format fallback when no route data is known", () => {
+      const flight = {
+        callsign: "TEST01"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Flug TEST01 (keine Daten)");
+    });
+  });
+
+  describe("formatNotificationPayload", () => {
+    it("should construct valid Awtrix payload object", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH123",
+        origin: "MUC",
+        destination: "HAM",
+        aircraft: "Airbus A320"
+      };
+      const payload = formatNotificationPayload(flight);
+
+      assert.equal(payload.icon, "24591");
+      assert.equal(payload.repeat, 3);
+      assert.equal(payload.scroll.speed, 50);
+      assert.match(payload.text, /Lufthansa Flug DLH123/);
+    });
+  });
+});
