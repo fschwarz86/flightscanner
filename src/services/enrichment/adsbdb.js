@@ -42,9 +42,11 @@ async function fetchAdsbdbData(telemetry, options = {}) {
     const destination = routeData.destination?.iata_code || routeData.destination?.municipality || routeData.destination?.name || "";
     const aircraftModel = aircraftData.type || aircraftData.model || "";
     const aircraftIcao = aircraftData.icao_type_code || "";
+    const flightNumberIata = routeData.callsign_iata || (routeData.airline?.iata_code && routeData.flight_number ? `${routeData.airline.iata_code}${routeData.flight_number}` : "") || "";
 
     return {
       callsign: callsign || routeData.callsign || "",
+      flightNumberIata: flightNumberIata || "",
       airline: airline,
       origin: origin,
       destination: destination,

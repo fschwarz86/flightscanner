@@ -16,6 +16,7 @@ const AIRLINE_ICONS = {
 };
 
 const CALLSIGN_PREFIX_ICONS = {
+  // ICAO (3-letter)
   "DLH": 24591,
   "SWR": 24604,
   "BAW": 24607,
@@ -28,16 +29,31 @@ const CALLSIGN_PREFIX_ICONS = {
   "ITY": 24605,
   "EWG": 58999,
   "EWE": 58999,
-  "OCN": 24591
+  "OCN": 24591,
+
+  // IATA (2-letter)
+  "LH": 24591,
+  "LX": 24604,
+  "BA": 24607,
+  "TK": 24629,
+  "SK": 24608,
+  "KL": 24528,
+  "IB": 24590,
+  "EK": 54545,
+  "AF": 52241,
+  "AZ": 24605,
+  "EW": 58999,
+  "4Y": 24591
 };
 
 /**
- * Returns the Awtrix icon ID corresponding to the flight's airline or callsign prefix.
+ * Returns the Awtrix icon ID corresponding to the flight's airline or callsign/flight number prefix.
  * @param {Object} flightData
  * @returns {number}
  */
 function getAirlineIcon(flightData = {}) {
   const airline = (flightData.airline || "").trim();
+  const iataCode = (flightData.flightNumberIata || flightData.callsignIata || "").trim().toUpperCase();
   const callsign = (flightData.callsign || "").trim().toUpperCase();
 
   // 1. Direct airline name match
@@ -52,11 +68,27 @@ function getAirlineIcon(flightData = {}) {
     }
   }
 
-  // 3. Callsign 3-letter ICAO prefix match
+  // 3. IATA 2-letter prefix match (e.g. "LH123" -> "LH", "EW40" -> "EW")
+  if (iataCode.length >= 2) {
+    const iataPrefix = iataCode.slice(0, 2);
+    if (CALLSIGN_PREFIX_ICONS[iataPrefix]) {
+      return CALLSIGN_PREFIX_ICONS[iataPrefix];
+    }
+  }
+
+  // 4. Callsign 3-letter ICAO prefix match (e.g. "DLH123" -> "DLH")
   if (callsign.length >= 3) {
-    const prefix = callsign.slice(0, 3);
-    if (CALLSIGN_PREFIX_ICONS[prefix]) {
-      return CALLSIGN_PREFIX_ICONS[prefix];
+    const icaoPrefix = callsign.slice(0, 3);
+    if (CALLSIGN_PREFIX_ICONS[icaoPrefix]) {
+      return CALLSIGN_PREFIX_ICONS[icaoPrefix];
+    }
+  }
+
+  // 5. Callsign 2-letter fallback match
+  if (callsign.length >= 2) {
+    const shortPrefix = callsign.slice(0, 2);
+    if (CALLSIGN_PREFIX_ICONS[shortPrefix]) {
+      return CALLSIGN_PREFIX_ICONS[shortPrefix];
     }
   }
 
@@ -65,17 +97,19 @@ function getAirlineIcon(flightData = {}) {
 
 /**
  * Formats notification text in German based on available route and aircraft details.
+ * Prefers IATA flight number if available (e.g., "LH123" instead of "DLH123").
  * @param {Object} flightData
  * @returns {string}
  */
 function formatNotificationText(flightData = {}) {
   const airline = flightData.airline && flightData.airline !== "Unbekannte Fluggesellschaft" ? flightData.airline : "";
-  const callsign = flightData.callsign && flightData.callsign !== "Unbekannt" ? flightData.callsign : "";
+  const flightCode = (flightData.flightNumberIata || flightData.callsignIata || flightData.callsign || "").trim();
+  const displayCallsign = flightCode && flightCode !== "Unbekannt" ? flightCode : "";
   const origin = flightData.origin && flightData.origin !== "Unbekannt" ? flightData.origin : "";
   const destination = flightData.destination && flightData.destination !== "Unbekannt" ? flightData.destination : "";
   const aircraft = flightData.aircraft && flightData.aircraft !== "Unbekannt" ? flightData.aircraft : "";
 
-  const flightLabel = airline ? `${airline} Flug ${callsign}`.trim() : (callsign ? `Flug ${callsign}` : "Flug");
+  const flightLabel = airline ? `${airline} Flug ${displayCallsign}`.trim() : (displayCallsign ? `Flug ${displayCallsign}` : "Flug");
   const aircraftTag = aircraft ? ` (${aircraft})` : "";
 
   if (origin && (origin === "Hamburg (HAM)" || origin === "HAM" || origin.toLowerCase().includes("hamburg"))) {

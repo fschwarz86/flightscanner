@@ -62,6 +62,7 @@ function createEnricher(options = {}) {
             if (!enriched.destination && adsbdbResult.destination) enriched.destination = adsbdbResult.destination;
             if (!enriched.airline && adsbdbResult.airline) enriched.airline = adsbdbResult.airline;
             if (!enriched.aircraft && adsbdbResult.aircraft) enriched.aircraft = adsbdbResult.aircraft;
+            if (!enriched.flightNumberIata && adsbdbResult.flightNumberIata) enriched.flightNumberIata = adsbdbResult.flightNumberIata;
             usedProvider = "flightradar24+adsbdb";
             logger.debug(`[ENRICH] Merged adsbdb route info for flight ${cacheKey}`);
           }
@@ -79,6 +80,7 @@ function createEnricher(options = {}) {
         if (!enriched) {
           enriched = {
             callsign: callsign,
+            flightNumberIata: "",
             airline: "",
             origin: "",
             destination: "",
@@ -99,6 +101,7 @@ function createEnricher(options = {}) {
     // 5. Final fallback object if all lookups failed
     const finalFlight = {
       callsign: enriched?.callsign || callsign || "Unbekannt",
+      flightNumberIata: enriched?.flightNumberIata || "",
       airline: enriched?.airline || "Unbekannte Fluggesellschaft",
       origin: enriched?.origin || "Unbekannt",
       destination: enriched?.destination || "Unbekannt",

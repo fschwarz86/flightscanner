@@ -22,6 +22,13 @@ describe("Formatter Module", () => {
       assert.equal(getAirlineIcon({ callsign: "KLM1780" }), 24528);
     });
 
+    it("should match icon by 2-letter IATA flight code prefix", () => {
+      assert.equal(getAirlineIcon({ flightNumberIata: "LH123" }), 24591);
+      assert.equal(getAirlineIcon({ flightNumberIata: "EW40" }), 58999);
+      assert.equal(getAirlineIcon({ flightNumberIata: "BA902" }), 24607);
+      assert.equal(getAirlineIcon({ flightNumberIata: "AF1234" }), 52241);
+    });
+
     it("should fallback to default icon for unknown airlines", () => {
       assert.equal(getAirlineIcon({ airline: "Unknown Jet", callsign: "N12345" }), DEFAULT_ICON);
       assert.equal(getAirlineIcon({}), DEFAULT_ICON);
@@ -41,16 +48,30 @@ describe("Formatter Module", () => {
       assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) MUC -> Hamburg (HAM)");
     });
 
+    it("should prefer IATA flightcode if available over ICAO callsign", () => {
+      const flight = {
+        airline: "Lufthansa",
+        flightNumberIata: "LH123",
+        callsign: "DLH123",
+        origin: "MUC",
+        destination: "Hamburg (HAM)",
+        aircraft: "Airbus A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug LH123 (Airbus A320) MUC -> Hamburg (HAM)");
+    });
+
     it("should format departure from Hamburg", () => {
       const flight = {
         airline: "Eurowings",
+        flightNumberIata: "EW40",
         callsign: "EWG40P",
         origin: "HAM",
         destination: "ARN",
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Eurowings Flug EWG40P (Airbus A320) -> ARN");
+      assert.equal(text, "Eurowings Flug EW40 (Airbus A320) -> ARN");
     });
 
     it("should format flight when origin/destination are missing", () => {

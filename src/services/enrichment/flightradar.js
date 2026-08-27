@@ -74,9 +74,11 @@ async function fetchFlightradarData(telemetry, options = {}) {
     const destination = details?.airport?.destination?.code?.iata || details?.airport?.destination?.name || matchedFlight.destinationAirportIata || "";
     const aircraftModel = details?.aircraft?.model?.text || matchedFlight.aircraftCode || "";
     const aircraftIcao = details?.aircraft?.model?.code || matchedFlight.aircraftCode || "";
+    const flightNumberIata = details?.identification?.number?.default || matchedFlight.flightNumber || matchedFlight.number || "";
 
     return {
       callsign: rawCallsign || matchedFlight.callsign || "",
+      flightNumberIata: flightNumberIata || "",
       airline: airlineName,
       origin: origin,
       destination: destination,
