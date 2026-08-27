@@ -1,0 +1,32 @@
+# /etc/default/flightscanner
+# Configuration file for Flightscanner systemd service
+
+# Path to dump1090-fa aircraft.json file
+DUMP1090_FILE_PATH=/run/dump1090-fa/aircraft.json
+
+# Path to local ICAO aircraft types CSV
+AIRCRAFT_TYPES_CSV_PATH=/etc/flightdata/aircraft_types.csv
+
+# MQTT Broker connection
+MQTT_BROKER_URL=mqtt://homeassistant:1883
+MQTT_TOPIC=awtrix/cmd/notify
+MQTT_CLIENT_ID=flightscanner
+
+# Geofence Bounding Box (Latitude / Longitude)
+GEOFENCE_MIN_LAT=53.65
+GEOFENCE_MAX_LAT=53.72
+GEOFENCE_MIN_LON=10.10
+GEOFENCE_MAX_LON=10.20
+
+# Altitude Limits in feet
+ALTITUDE_MIN_FT=2000
+ALTITUDE_MAX_FT=10000
+
+# Cooldown per flight (milliseconds) - default 30 mins
+FLIGHT_COOLDOWN_MS=1800000
+
+# Route Cache TTL (milliseconds) - default 4 hours
+ROUTE_CACHE_TTL_MS=14400000
+
+# Log Level (debug, info, warn, error)
+LOG_LEVEL=info

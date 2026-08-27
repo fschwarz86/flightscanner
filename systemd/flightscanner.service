@@ -1,0 +1,27 @@
+[Unit]
+Description=Flightscanner ADS-B Matrix Display Service
+Documentation=https://github.com/fschwarz/flightscanner
+After=network.target dump1090-fa.service mosquitto.service
+Wants=dump1090-fa.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/flightscanner
+EnvironmentFile=-/etc/default/flightscanner
+ExecStart=/usr/bin/node /opt/flightscanner/src/index.js
+Restart=always
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=flightscanner
+
+# Resource constraints and security sandboxing
+LimitNOFILE=4096
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
