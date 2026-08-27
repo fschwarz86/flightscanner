@@ -152,4 +152,48 @@ E190,Embraer,ERJ-190,Landplane
     assert.equal(result.callsign, "FAIL01");
     assert.equal(result.source, "fallback");
   });
+
+  it("should identify and record the exact provider used (flightradar24, adsbdb, csv, or fallback)", async () => {
+    const mockFrApi = {
+      async getFlights(airline, bounds, registration) {
+        if (registration === "D-FR24") {
+          return [{
+            id: "fr-1",
+            callsign: "DLH11",
+            registration: "D-FR24",
+            originAirportIata: "FRA",
+            destinationAirportIata: "HAM",
+            airlineIcao: "DLH",
+            aircraftCode: "A320"
+          }];
+        }
+        return [];
+      },
+      async getFlightDetails() {
+        return {
+          airline: { name: "Lufthansa" },
+          airport: { origin: { code: { iata: "FRA" } }, destination: { code: { iata: "HAM" } } },
+          aircraft: { model: { text: "Airbus A320" } }
+        };
+      }
+    };
+
+    const enricher = createEnricher({
+      config: { aircraftTypesCsvPath: csvPath },
+      frApiInstance: mockFrApi
+    });
+
+    // 1. Flightradar24 provider
+    const frResult = await enricher.enrichFlight({ flight: "DLH11", r: "D-FR24", lat: 53.68, lon: 10.15 });
+    assert.equal(frResult.source, "flightradar24");
+
+    // 2. CSV fallback provider
+    const csvResult = await enricher.enrichFlight({ flight: "CSV01", r: "D-CSV1", t: "E190" });
+    assert.equal(csvResult.source, "csv");
+    assert.equal(csvResult.aircraft, "Embraer ERJ-190");
+
+    // 3. Complete fallback
+    const fallbackResult = await enricher.enrichFlight({ flight: "NONE01", r: "D-NONE" });
+    assert.equal(fallbackResult.source, "fallback");
+  });
 });

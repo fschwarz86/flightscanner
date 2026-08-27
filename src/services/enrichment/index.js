@@ -28,16 +28,21 @@ function createEnricher(options = {}) {
     if (cache && cacheKey) {
       const cached = cache.get(cacheKey);
       if (cached) {
-        logger.debug(`Cache hit for flight ${cacheKey}`);
+        logger.debug(`[ENRICH] Cache hit for flight ${cacheKey} (provider: cache [original: ${cached.source || "unknown"}])`);
         return cached;
       }
     }
 
     let enriched = null;
+    let usedProvider = "fallback";
 
     // 2. Try primary Flightradar24 provider
     try {
       enriched = await fetchFlightradarData(telemetry, { apiInstance: frApiInstance });
+      if (enriched) {
+        usedProvider = "flightradar24";
+        logger.debug(`[ENRICH] Flightradar24 resolved flight ${cacheKey}: airline="${enriched.airline}", route="${enriched.origin}" -> "${enriched.destination}", model="${enriched.aircraft}"`);
+      }
     } catch (err) {
       logger.debug(`Primary Flightradar24 enrichment failed: ${err.message}`);
     }
@@ -49,12 +54,16 @@ function createEnricher(options = {}) {
         if (adsbdbResult) {
           if (!enriched) {
             enriched = adsbdbResult;
+            usedProvider = "adsbdb";
+            logger.debug(`[ENRICH] adsbdb resolved flight ${cacheKey}: airline="${enriched.airline}", route="${enriched.origin}" -> "${enriched.destination}", model="${enriched.aircraft}"`);
           } else {
             // Merge adsbdb route details into existing enriched data
             if (!enriched.origin && adsbdbResult.origin) enriched.origin = adsbdbResult.origin;
             if (!enriched.destination && adsbdbResult.destination) enriched.destination = adsbdbResult.destination;
             if (!enriched.airline && adsbdbResult.airline) enriched.airline = adsbdbResult.airline;
             if (!enriched.aircraft && adsbdbResult.aircraft) enriched.aircraft = adsbdbResult.aircraft;
+            usedProvider = "flightradar24+adsbdb";
+            logger.debug(`[ENRICH] Merged adsbdb route info for flight ${cacheKey}`);
           }
         }
       } catch (err) {
@@ -78,9 +87,12 @@ function createEnricher(options = {}) {
             registration: registration,
             source: "csv"
           };
+          usedProvider = "csv";
         } else {
           enriched.aircraft = csvModel;
+          usedProvider = `${usedProvider}+csv`;
         }
+        logger.debug(`[ENRICH] Resolved ICAO aircraft designator "${rawIcao}" -> "${csvModel}" via local CSV`);
       }
     }
 
@@ -93,8 +105,10 @@ function createEnricher(options = {}) {
       aircraft: enriched?.aircraft || (rawIcao ? `Flugzeug (${rawIcao})` : "Unbekannt"),
       aircraftIcao: enriched?.aircraftIcao || rawIcao || "",
       registration: enriched?.registration || registration || hex || "",
-      source: enriched?.source || "fallback"
+      source: enriched?.source || usedProvider
     };
+
+    logger.debug(`[ENRICH] Flight ${cacheKey || "unknown"} finalized using provider: "${finalFlight.source}" (airline: "${finalFlight.airline}", route: "${finalFlight.origin}" -> "${finalFlight.destination}", aircraft: "${finalFlight.aircraft}")`);
 
     // 6. Cache result
     if (cache && cacheKey) {

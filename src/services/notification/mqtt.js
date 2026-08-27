@@ -48,6 +48,9 @@ function createMqttPublisher(options = {}) {
     const messageStr = JSON.stringify(payload);
 
     logger.info(`[NOTIFY] ${payload.text} (Icon: ${payload.icon})`);
+    if (flightData && flightData.source) {
+      logger.debug(`[NOTIFY] Data provider for notification: "${flightData.source}"`);
+    }
 
     return new Promise((resolve) => {
       if (!client) {
