@@ -9,7 +9,7 @@ Refactor and harden the Flightscanner service from a single-file prototype into 
 - [x] **Phase 1: Architecture & Multi-Source Configuration** - Package setup, service modularization, and config loading (/etc, .env, defaults) (completed 2026-08-27)
 - [x] **Phase 2: Multi-Provider Flight Enrichment & Caching** - Flightradar24 client, adsbdb.com fallback, CSV parser, and TTL cache (completed 2026-08-27)
 - [x] **Phase 3: Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier** - Debounced watcher, bounding box filter, cooldown queue, and MQTT publisher (completed 2026-08-27)
-- [ ] **Phase 4: Systemd Service Integration & Automated Test Suite** - Comprehensive unit tests, systemd unit file, and daemon installation guide
+- [x] **Phase 4: Systemd Service Integration & Automated Test Suite** - Comprehensive unit tests, systemd unit file, and daemon installation guide (completed 2026-08-27)
 
 ## Phase Details
 
@@ -87,8 +87,8 @@ Plans:
 
 Plans:
 
-- [ ] 04-01: Integrate service entrypoint with lifecycle management and end-to-end integration test suite
-- [ ] 04-02: Create systemd service unit template and production installation guide
+- [x] 04-01: Integrate service entrypoint with lifecycle management and end-to-end integration test suite
+- [x] 04-02: Create systemd service unit template and production installation guide
 
 ## Progress
 
@@ -97,4 +97,4 @@ Plans:
 | 1. Architecture & Multi-Source Configuration | 2/2 | Complete    | 2026-08-27 |
 | 2. Multi-Provider Flight Enrichment & Caching | 2/2 | Complete    | 2026-08-27 |
 | 3. Telemetry Watcher, Multi-Aircraft Queue & Awtrix MQTT Notifier | 2/2 | Complete    | 2026-08-27 |
-| 4. Systemd Service Integration & Automated Test Suite | 0/2 | Not started | - |
+| 4. Systemd Service Integration & Automated Test Suite | 2/2 | Complete    | 2026-08-27 |

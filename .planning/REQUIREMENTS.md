@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Configuration & Daemon (CONF)
 
 - [x] **CONF-01**: Multi-source configuration loader resolving from `/etc/flightscanner/config.json`, `/etc/default/flightscanner`, `.env`, and default settings
-- [ ] **CONF-02**: Systemd service unit file (`flightscanner.service`) and installation guide for 24/7 background operation
+- [x] **CONF-02**: Systemd service unit file (`flightscanner.service`) and installation guide for 24/7 background operation
 - [x] **CONF-03**: Configurable geofence coordinates, altitude bounds, MQTT broker connection, and file paths via config without code modification
 
 ### Flight Enrichment & Caching (ENRICH)
@@ -35,7 +35,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Quality & Testing (TEST)
 
-- [ ] **TEST-01**: Comprehensive automated unit test suite covering config loading, coordinate filtering, provider fallbacks, cache TTL, and message formatting
+- [x] **TEST-01**: Comprehensive automated unit test suite covering config loading, coordinate filtering, provider fallbacks, cache TTL, and message formatting
 
 ## v2 Requirements
 
@@ -62,7 +62,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CONF-01 | Phase 1 | Complete |
-| CONF-02 | Phase 4 | Pending |
+| CONF-02 | Phase 4 | Complete |
 | CONF-03 | Phase 1 | Complete |
 | ENRICH-01 | Phase 2 | Complete |
 | ENRICH-02 | Phase 2 | Complete |
@@ -75,7 +75,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NOTIFY-01 | Phase 3 | Complete |
 | NOTIFY-02 | Phase 3 | Complete |
 | NOTIFY-03 | Phase 3 | Complete |
-| TEST-01 | Phase 4 | Pending |
+| TEST-01 | Phase 4 | Complete |
 
 **Coverage:**
 
