@@ -15,10 +15,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Flight Enrichment & Caching (ENRICH)
 
-- [ ] **ENRICH-01**: Flightradar24 client provider fetching live route (origin, destination), operating airline, and aircraft model
-- [ ] **ENRICH-02**: Resilient fallback to adsbdb.com API when Flightradar24 is unavailable or fails
-- [ ] **ENRICH-03**: Local CSV fallback lookup (`/etc/flightdata/aircraft_types.csv`) for ICAO aircraft types when external APIs fail
-- [ ] **ENRICH-04**: Lightweight local route cache with configurable TTL (2-4 hours) to minimize API calls and prevent rate limiting
+- [x] **ENRICH-01**: Flightradar24 client provider fetching live route (origin, destination), operating airline, and aircraft model
+- [x] **ENRICH-02**: Resilient fallback to adsbdb.com API when Flightradar24 is unavailable or fails
+- [x] **ENRICH-03**: Local CSV fallback lookup (`/etc/flightdata/aircraft_types.csv`) for ICAO aircraft types when external APIs fail
+- [x] **ENRICH-04**: Lightweight local route cache with configurable TTL (2-4 hours) to minimize API calls and prevent rate limiting
 
 ### Tracking & Multi-Aircraft Queue (TRACK)
 
@@ -64,10 +64,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 4 | Pending |
 | CONF-03 | Phase 1 | Complete |
-| ENRICH-01 | Phase 2 | Pending |
-| ENRICH-02 | Phase 2 | Pending |
-| ENRICH-03 | Phase 2 | Pending |
-| ENRICH-04 | Phase 2 | Pending |
+| ENRICH-01 | Phase 2 | Complete |
+| ENRICH-02 | Phase 2 | Complete |
+| ENRICH-03 | Phase 2 | Complete |
+| ENRICH-04 | Phase 2 | Complete |
 | TRACK-01 | Phase 3 | Pending |
 | TRACK-02 | Phase 3 | Pending |
 | TRACK-03 | Phase 3 | Pending |
