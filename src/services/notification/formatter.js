@@ -12,13 +12,23 @@ const DEFAULT_ICON = 15302;
 const AIRLINE_REGISTRY = [
   {
     icon: 24591,
-    names: ["Lufthansa", "Lufthansa Cargo", "Lufthansa CityLine", "Discover Airlines", "Austrian Airlines", "Brussels Airlines"],
-    codes: ["LH", "DLH", "GEC", "CLH", "4Y", "OCN", "OS", "AUA", "SN", "BEL"]
+    names: ["Lufthansa", "Lufthansa Cargo", "Lufthansa CityLine", "Discover Airlines"],
+    codes: ["LH", "DLH", "GEC", "CLH", "4Y", "OCN"]
+  },
+  {
+    icon: 74959,
+    names: ["Brussels Airlines"],
+    codes: ["SN", "BEL"]
+  },
+  {
+    icon: 74955,
+    names: ["Austrian Airlines"],
+    codes: ["OS", "AUA"]
   },
   {
     icon: 58999,
-    names: ["Eurowings", "Eurowings Europe", "TUIfly"],
-    codes: ["EW", "EWG", "EWE", "X3", "TUI"]
+    names: ["Eurowings", "Eurowings Europe"],
+    codes: ["EW", "EWG", "EWE"]
   },
   {
     icon: 24604,
@@ -47,18 +57,38 @@ const AIRLINE_REGISTRY = [
   },
   {
     icon: 24608,
-    names: ["Scandinavian Airlines System", "Scandinavian Airlines", "SAS", "Norwegian", "Finnair", "Widerøe"],
-    codes: ["SK", "SAS", "DY", "D8", "NAX", "NSZ", "AY", "FIN", "WF", "WIF"]
+    names: ["Scandinavian Airlines System", "Scandinavian Airlines", "SAS", "Finnair", "Widerøe"],
+    codes: ["SK", "SAS", "DY", "D8", "AY", "FIN", "WF", "WIF"]
   },
   {
-    icon: 24590,
-    names: ["Iberia", "Iberia Express", "TAP Air Portugal", "Vueling"],
-    codes: ["IB", "IBE", "IBS", "TP", "TAP", "VY", "VLG"]
+    icon: 52217,
+    names: ["Norwegian"],
+    codes: ["NAX", "NSZ"]
+  },
+  {
+    icon: 69625,
+    names: ["Finnair"],
+    codes: ["AY", "FIN"]
+  },
+  {
+    icon: 74963,
+    names: ["Iberia", "Iberia Express"],
+    codes: ["IB", "IBE", "IBS"]
+  },
+  {
+    icon: 70948,
+    names: ["Vueling"],
+    codes: ["VY", "VLG"]
+  },
+  {
+    icon: 74983,
+    names: ["TAP Air Portugal"],
+    codes: ["TP", "TAP"]
   },
   {
     icon: 54545,
-    names: ["Emirates", "Qatar Airways", "Etihad Airways"],
-    codes: ["EK", "UAE", "QR", "QTR", "EY", "ETD"]
+    names: ["Emirates"],
+    codes: ["EK", "UAE"]
   },
   {
     icon: 24605,
@@ -66,24 +96,24 @@ const AIRLINE_REGISTRY = [
     codes: ["AZ", "ITY"]
   },
   {
-    icon: 24601,
+    icon: 74926,
     names: ["Ryanair", "Malta Air", "Buzz", "Lauda Europe"],
     codes: ["FR", "RYR", "MAY", "RYS", "LDA"]
   },
   {
-    icon: 24606,
+    icon: 74940,
     names: ["easyJet", "easyJet Europe", "easyJet Switzerland"],
     codes: ["U2", "EZY", "EJU", "EZS"]
   },
   {
-    icon: 24610,
+    icon: 74943,
     names: ["Wizz Air", "Wizz Air UK", "Wizz Air Malta"],
     codes: ["W6", "WZZ", "WUK", "WMT"]
   },
   {
-    icon: 24600,
-    names: ["Condor", "Sundair"],
-    codes: ["DE", "CFG", "SR", "SDR"]
+    icon: 77081,
+    names: ["Condor"],
+    codes: ["DE", "CFG"]
   }
 ];
 
