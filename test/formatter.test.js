@@ -4,6 +4,7 @@ const {
   getAirlineIcon,
   formatNotificationText,
   formatNotificationPayload,
+  formatAirport,
   DEFAULT_ICON
 } = require("../src/services/notification/formatter");
 
@@ -59,9 +60,9 @@ describe("Formatter Module", () => {
 
     it("should allow matching against a custom registry", () => {
       const customRegistry = [
-        { icon: 99999, names: ["Custom Aero"], codes: ["CA", "CST"] }
+        { icon: 99999, names: ["Custom Air"], codes: ["CA"] }
       ];
-      assert.equal(getAirlineIcon({ airline: "Custom Aero" }, customRegistry), 99999);
+      assert.equal(getAirlineIcon({ airline: "Custom Air" }, customRegistry), 99999);
       assert.equal(getAirlineIcon({ flightNumberIata: "CA100" }, customRegistry), 99999);
     });
 
@@ -71,8 +72,42 @@ describe("Formatter Module", () => {
     });
   });
 
+  describe("formatAirport", () => {
+    it("should format 3-letter IATA code to $CITY ($CODE)", () => {
+      assert.equal(formatAirport("MUC"), "München (MUC)");
+      assert.equal(formatAirport("HAM"), "Hamburg (HAM)");
+      assert.equal(formatAirport("PMI"), "Palma (PMI)");
+      assert.equal(formatAirport("LHR"), "London (LHR)");
+      assert.equal(formatAirport("ARN"), "Stockholm (ARN)");
+    });
+
+    it("should keep already formatted $CITY ($CODE) strings", () => {
+      assert.equal(formatAirport("München (MUC)"), "München (MUC)");
+      assert.equal(formatAirport("Hamburg (HAM)"), "Hamburg (HAM)");
+      assert.equal(formatAirport("Palma de Mallorca (PMI)"), "Palma de Mallorca (PMI)");
+    });
+
+    it("should format object containing code and municipality/city", () => {
+      assert.equal(formatAirport({ iata_code: "MUC", municipality: "München" }), "München (MUC)");
+      assert.equal(formatAirport({ code: { iata: "HAM" }, name: "Hamburg Airport" }), "Hamburg (HAM)");
+      assert.equal(formatAirport({ iata: "PMI", city: "Palma" }), "Palma (PMI)");
+    });
+
+    it("should lookup code if only known city is provided", () => {
+      assert.equal(formatAirport("Frankfurt"), "Frankfurt (FRA)");
+      assert.equal(formatAirport("München"), "München (MUC)");
+      assert.equal(formatAirport("Hamburg Airport"), "Hamburg (HAM)");
+    });
+
+    it("should return raw value or code if unknown in dictionary", () => {
+      assert.equal(formatAirport("XYZ"), "XYZ");
+      assert.equal(formatAirport("Some Small Airfield"), "Some Small Airfield");
+      assert.equal(formatAirport(""), "");
+    });
+  });
+
   describe("formatNotificationText", () => {
-    it("should format Hamburg arrival flight text", () => {
+    it("should format Hamburg arrival flight text with $CITY ($CODE)", () => {
       const flight = {
         airline: "Lufthansa",
         callsign: "DLH123",
@@ -81,7 +116,7 @@ describe("Formatter Module", () => {
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) MUC -> Hamburg (HAM)");
+      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) München (MUC) -> Hamburg (HAM)");
     });
 
     it("should prefer IATA flightcode if available over ICAO callsign", () => {
@@ -94,10 +129,10 @@ describe("Formatter Module", () => {
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Lufthansa Flug LH123 (Airbus A320) MUC -> Hamburg (HAM)");
+      assert.equal(text, "Lufthansa Flug LH123 (Airbus A320) München (MUC) -> Hamburg (HAM)");
     });
 
-    it("should format departure from Hamburg", () => {
+    it("should format departure from Hamburg with destination $CITY ($CODE)", () => {
       const flight = {
         airline: "Eurowings",
         flightNumberIata: "EW40",
@@ -107,7 +142,7 @@ describe("Formatter Module", () => {
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Eurowings Flug EW40 (Airbus A320) -> ARN");
+      assert.equal(text, "Eurowings Flug EW40 (Airbus A320) -> Stockholm (ARN)");
     });
 
     it("should format flight when origin/destination are missing", () => {
@@ -158,6 +193,8 @@ describe("Formatter Module", () => {
       assert.equal(payload.repeat, 3);
       assert.equal(payload.scroll.speed, 50);
       assert.match(payload.text, /Lufthansa Flug DLH123/);
+      assert.match(payload.text, /München \(MUC\)/);
+      assert.match(payload.text, /Hamburg \(HAM\)/);
     });
   });
 });

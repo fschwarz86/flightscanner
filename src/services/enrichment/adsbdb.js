@@ -38,8 +38,21 @@ async function fetchAdsbdbData(telemetry, options = {}) {
     const routeData = data.flightroute || {};
 
     const airline = aircraftData.registered_owner || routeData.airline?.name || "";
-    const origin = routeData.origin?.iata_code || routeData.origin?.municipality || routeData.origin?.name || "";
-    const destination = routeData.destination?.iata_code || routeData.destination?.municipality || routeData.destination?.name || "";
+    const originIata = routeData.origin?.iata_code || "";
+    const originCity = routeData.origin?.municipality || routeData.origin?.name || "";
+    let origin = originIata || originCity || "";
+    if (originCity && originIata) {
+      const cleanCity = originCity.replace(/\s*\(([A-Za-z0-9]{3,4})\)$/, "").replace(/\s+(Airport|Flughafen)\b/gi, "").trim();
+      origin = `${cleanCity} (${originIata})`;
+    }
+
+    const destIata = routeData.destination?.iata_code || "";
+    const destCity = routeData.destination?.municipality || routeData.destination?.name || "";
+    let destination = destIata || destCity || "";
+    if (destCity && destIata) {
+      const cleanCity = destCity.replace(/\s*\(([A-Za-z0-9]{3,4})\)$/, "").replace(/\s+(Airport|Flughafen)\b/gi, "").trim();
+      destination = `${cleanCity} (${destIata})`;
+    }
     const aircraftModel = aircraftData.type || aircraftData.model || "";
     const aircraftIcao = aircraftData.icao_type_code || "";
     const flightNumberIata = routeData.callsign_iata || (routeData.airline?.iata_code && routeData.flight_number ? `${routeData.airline.iata_code}${routeData.flight_number}` : "") || "";

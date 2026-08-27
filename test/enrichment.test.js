@@ -98,8 +98,8 @@ E190,Embraer,ERJ-190,Landplane
     const result = await enricher.enrichFlight({ flight: "DLH123", r: "D-AIUW", lat: 53.68, lon: 10.15 });
     assert.equal(result.source, "flightradar24");
     assert.equal(result.airline, "Lufthansa");
-    assert.equal(result.origin, "MUC");
-    assert.equal(result.destination, "HAM");
+    assert.equal(result.origin, "Munich (MUC)");
+    assert.equal(result.destination, "Hamburg (HAM)");
     assert.equal(result.aircraft, "Airbus A320-214");
 
     // Verify it was placed in cache

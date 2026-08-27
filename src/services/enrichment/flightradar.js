@@ -70,8 +70,21 @@ async function fetchFlightradarData(telemetry, options = {}) {
     }
 
     const airlineName = details?.airline?.name || matchedFlight.airlineIcao || "";
-    const origin = details?.airport?.origin?.code?.iata || details?.airport?.origin?.name || matchedFlight.originAirportIata || "";
-    const destination = details?.airport?.destination?.code?.iata || details?.airport?.destination?.name || matchedFlight.destinationAirportIata || "";
+    const originIata = details?.airport?.origin?.code?.iata || matchedFlight.originAirportIata || "";
+    const originCity = details?.airport?.origin?.position?.region?.city || details?.airport?.origin?.name || "";
+    let origin = originIata || originCity || "";
+    if (originCity && originIata) {
+      const cleanCity = originCity.replace(/\s*\(([A-Za-z0-9]{3,4})\)$/, "").replace(/\s+(Airport|Flughafen)\b/gi, "").trim();
+      origin = `${cleanCity} (${originIata})`;
+    }
+
+    const destIata = details?.airport?.destination?.code?.iata || matchedFlight.destinationAirportIata || "";
+    const destCity = details?.airport?.destination?.position?.region?.city || details?.airport?.destination?.name || "";
+    let destination = destIata || destCity || "";
+    if (destCity && destIata) {
+      const cleanCity = destCity.replace(/\s*\(([A-Za-z0-9]{3,4})\)$/, "").replace(/\s+(Airport|Flughafen)\b/gi, "").trim();
+      destination = `${cleanCity} (${destIata})`;
+    }
     const aircraftModel = details?.aircraft?.model?.text || matchedFlight.aircraftCode || "";
     const aircraftIcao = details?.aircraft?.model?.code || matchedFlight.aircraftCode || "";
     const flightNumberIata = details?.identification?.number?.default || matchedFlight.flightNumber || matchedFlight.number || "";
