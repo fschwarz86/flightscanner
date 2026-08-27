@@ -1,94 +1,182 @@
 const DEFAULT_ICON = 15302;
 
-const AIRLINE_ICONS = {
-  "Lufthansa": 24591,
-  "Swiss International Air Lines": 24604,
-  "British Airways": 24607,
-  "Turkish Airlines": 24629,
-  "Scandinavian Airlines System": 24608,
-  "KLM Royal Dutch Airlines": 24528,
-  "Iberia": 24590,
-  "Emirates": 54545,
-  "Air France": 52241,
-  "ITA Airways": 24605,
-  "Eurowings": 58999,
-  "Discover Airlines": 24591
-};
+/**
+ * Unified Airline Registry.
+ *
+ * Each entry maps an Awtrix icon ID to:
+ * - `names`: Array of airline names/aliases (case-insensitive matching)
+ * - `codes`: Array of 2-letter IATA and 3-letter ICAO airline/callsign prefixes
+ *
+ * To add a new airline, simply add a single object entry here.
+ */
+const AIRLINE_REGISTRY = [
+  {
+    icon: 24591,
+    names: ["Lufthansa", "Lufthansa Cargo", "Lufthansa CityLine", "Discover Airlines", "Austrian Airlines", "Brussels Airlines"],
+    codes: ["LH", "DLH", "GEC", "CLH", "4Y", "OCN", "OS", "AUA", "SN", "BEL"]
+  },
+  {
+    icon: 58999,
+    names: ["Eurowings", "Eurowings Europe", "TUIfly"],
+    codes: ["EW", "EWG", "EWE", "X3", "TUI"]
+  },
+  {
+    icon: 24604,
+    names: ["Swiss International Air Lines", "Swiss Global Air Lines", "Swiss"],
+    codes: ["LX", "SWR"]
+  },
+  {
+    icon: 24607,
+    names: ["British Airways", "BA CityFlyer"],
+    codes: ["BA", "BAW", "CFE"]
+  },
+  {
+    icon: 52241,
+    names: ["Air France", "Hop!"],
+    codes: ["AF", "AFR", "HOP"]
+  },
+  {
+    icon: 24528,
+    names: ["KLM Royal Dutch Airlines", "KLM Cityhopper", "KLM"],
+    codes: ["KL", "KLM", "KLC"]
+  },
+  {
+    icon: 24629,
+    names: ["Turkish Airlines", "Pegasus Airlines", "SunExpress", "AJet", "AnadoluJet"],
+    codes: ["TK", "THY", "PC", "PGT", "XQ", "SXS", "VF", "TKJ"]
+  },
+  {
+    icon: 24608,
+    names: ["Scandinavian Airlines System", "Scandinavian Airlines", "SAS", "Norwegian", "Finnair", "Widerøe"],
+    codes: ["SK", "SAS", "DY", "D8", "NAX", "NSZ", "AY", "FIN", "WF", "WIF"]
+  },
+  {
+    icon: 24590,
+    names: ["Iberia", "Iberia Express", "TAP Air Portugal", "Vueling"],
+    codes: ["IB", "IBE", "IBS", "TP", "TAP", "VY", "VLG"]
+  },
+  {
+    icon: 54545,
+    names: ["Emirates", "Qatar Airways", "Etihad Airways"],
+    codes: ["EK", "UAE", "QR", "QTR", "EY", "ETD"]
+  },
+  {
+    icon: 24605,
+    names: ["ITA Airways", "Alitalia"],
+    codes: ["AZ", "ITY"]
+  },
+  {
+    icon: 24601,
+    names: ["Ryanair", "Malta Air", "Buzz", "Lauda Europe"],
+    codes: ["FR", "RYR", "MAY", "RYS", "LDA"]
+  },
+  {
+    icon: 24606,
+    names: ["easyJet", "easyJet Europe", "easyJet Switzerland"],
+    codes: ["U2", "EZY", "EJU", "EZS"]
+  },
+  {
+    icon: 24610,
+    names: ["Wizz Air", "Wizz Air UK", "Wizz Air Malta"],
+    codes: ["W6", "WZZ", "WUK", "WMT"]
+  },
+  {
+    icon: 24600,
+    names: ["Condor", "Sundair"],
+    codes: ["DE", "CFG", "SR", "SDR"]
+  }
+];
 
-const CALLSIGN_PREFIX_ICONS = {
-  // ICAO (3-letter)
-  "DLH": 24591,
-  "SWR": 24604,
-  "BAW": 24607,
-  "THY": 24629,
-  "SAS": 24608,
-  "KLM": 24528,
-  "IBE": 24590,
-  "UAE": 54545,
-  "AFR": 52241,
-  "ITY": 24605,
-  "EWG": 58999,
-  "EWE": 58999,
-  "OCN": 24591,
+// Pre-compiled fast lookup tables
+const NAME_ICON_MAP = new Map();
+const CODE_ICON_MAP = new Map();
 
-  // IATA (2-letter)
-  "LH": 24591,
-  "LX": 24604,
-  "BA": 24607,
-  "TK": 24629,
-  "SK": 24608,
-  "KL": 24528,
-  "IB": 24590,
-  "EK": 54545,
-  "AF": 52241,
-  "AZ": 24605,
-  "EW": 58999,
-  "4Y": 24591
-};
+for (const entry of AIRLINE_REGISTRY) {
+  for (const name of entry.names || []) {
+    NAME_ICON_MAP.set(name.toLowerCase(), entry.icon);
+  }
+  for (const code of entry.codes || []) {
+    CODE_ICON_MAP.set(code.toUpperCase(), entry.icon);
+  }
+}
+
+// Backwards compatibility mappings
+const AIRLINE_ICONS = Object.fromEntries(NAME_ICON_MAP.entries());
+const CALLSIGN_PREFIX_ICONS = Object.fromEntries(CODE_ICON_MAP.entries());
 
 /**
  * Returns the Awtrix icon ID corresponding to the flight's airline or callsign/flight number prefix.
  * @param {Object} flightData
+ * @param {Array} [registry=AIRLINE_REGISTRY]
  * @returns {number}
  */
-function getAirlineIcon(flightData = {}) {
-  const airline = (flightData.airline || "").trim();
+function getAirlineIcon(flightData = {}, registry = AIRLINE_REGISTRY) {
+  const airline = (flightData.airline || "").trim().toLowerCase();
   const iataCode = (flightData.flightNumberIata || flightData.callsignIata || "").trim().toUpperCase();
   const callsign = (flightData.callsign || "").trim().toUpperCase();
 
-  // 1. Direct airline name match
-  if (airline && AIRLINE_ICONS[airline]) {
-    return AIRLINE_ICONS[airline];
-  }
+  const isDefault = registry === AIRLINE_REGISTRY;
 
-  // 2. Partial airline name match
-  for (const [key, iconId] of Object.entries(AIRLINE_ICONS)) {
-    if (airline && airline.toLowerCase().includes(key.toLowerCase())) {
-      return iconId;
+  // 1. Direct / exact airline name match
+  if (airline) {
+    if (isDefault && NAME_ICON_MAP.has(airline)) {
+      return NAME_ICON_MAP.get(airline);
+    }
+    for (const entry of registry) {
+      if ((entry.names || []).some(n => n.toLowerCase() === airline)) {
+        return entry.icon;
+      }
     }
   }
 
-  // 3. IATA 2-letter prefix match (e.g. "LH123" -> "LH", "EW40" -> "EW")
+  // 2. IATA 2-letter prefix match (e.g. "LH123" -> "LH", "EW40" -> "EW")
   if (iataCode.length >= 2) {
     const iataPrefix = iataCode.slice(0, 2);
-    if (CALLSIGN_PREFIX_ICONS[iataPrefix]) {
-      return CALLSIGN_PREFIX_ICONS[iataPrefix];
+    if (isDefault && CODE_ICON_MAP.has(iataPrefix)) {
+      return CODE_ICON_MAP.get(iataPrefix);
+    }
+    for (const entry of registry) {
+      if ((entry.codes || []).some(c => c.toUpperCase() === iataPrefix)) {
+        return entry.icon;
+      }
     }
   }
 
-  // 4. Callsign 3-letter ICAO prefix match (e.g. "DLH123" -> "DLH")
+  // 3. Callsign 3-letter ICAO prefix match (e.g. "DLH123" -> "DLH")
   if (callsign.length >= 3) {
     const icaoPrefix = callsign.slice(0, 3);
-    if (CALLSIGN_PREFIX_ICONS[icaoPrefix]) {
-      return CALLSIGN_PREFIX_ICONS[icaoPrefix];
+    if (isDefault && CODE_ICON_MAP.has(icaoPrefix)) {
+      return CODE_ICON_MAP.get(icaoPrefix);
+    }
+    for (const entry of registry) {
+      if ((entry.codes || []).some(c => c.toUpperCase() === icaoPrefix)) {
+        return entry.icon;
+      }
     }
   }
 
-  // 5. Callsign 2-letter fallback match
+  // 4. Callsign 2-letter fallback match (e.g. "LH123" -> "LH")
   if (callsign.length >= 2) {
     const shortPrefix = callsign.slice(0, 2);
-    if (CALLSIGN_PREFIX_ICONS[shortPrefix]) {
-      return CALLSIGN_PREFIX_ICONS[shortPrefix];
+    if (isDefault && CODE_ICON_MAP.has(shortPrefix)) {
+      return CODE_ICON_MAP.get(shortPrefix);
+    }
+    for (const entry of registry) {
+      if ((entry.codes || []).some(c => c.toUpperCase() === shortPrefix)) {
+        return entry.icon;
+      }
+    }
+  }
+
+  // 5. Partial substring airline name match
+  if (airline) {
+    for (const entry of registry) {
+      for (const name of entry.names || []) {
+        const lower = name.toLowerCase();
+        if (airline.includes(lower) || lower.includes(airline)) {
+          return entry.icon;
+        }
+      }
     }
   }
 
@@ -167,6 +255,7 @@ module.exports = {
   formatNotificationText,
   formatNotificationPayload,
   DEFAULT_ICON,
+  AIRLINE_REGISTRY,
   AIRLINE_ICONS,
   CALLSIGN_PREFIX_ICONS
 };

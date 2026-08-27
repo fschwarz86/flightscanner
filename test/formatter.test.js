@@ -29,6 +29,42 @@ describe("Formatter Module", () => {
       assert.equal(getAirlineIcon({ flightNumberIata: "AF1234" }), 52241);
     });
 
+    it("should match icon from unified registry by full name, IATA, or ICAO code", () => {
+      // Ryanair
+      assert.equal(getAirlineIcon({ airline: "Ryanair" }), 24601);
+      assert.equal(getAirlineIcon({ flightNumberIata: "FR1234" }), 24601);
+      assert.equal(getAirlineIcon({ callsign: "RYR456" }), 24601);
+
+      // easyJet
+      assert.equal(getAirlineIcon({ airline: "easyJet" }), 24606);
+      assert.equal(getAirlineIcon({ flightNumberIata: "U2881" }), 24606);
+      assert.equal(getAirlineIcon({ callsign: "EZY881" }), 24606);
+
+      // Condor
+      assert.equal(getAirlineIcon({ airline: "Condor" }), 24600);
+      assert.equal(getAirlineIcon({ flightNumberIata: "DE150" }), 24600);
+      assert.equal(getAirlineIcon({ callsign: "CFG150" }), 24600);
+
+      // Wizz Air
+      assert.equal(getAirlineIcon({ airline: "Wizz Air" }), 24610);
+      assert.equal(getAirlineIcon({ flightNumberIata: "W61234" }), 24610);
+      assert.equal(getAirlineIcon({ callsign: "WZZ1234" }), 24610);
+    });
+
+    it("should match partial airline names from registry", () => {
+      assert.equal(getAirlineIcon({ airline: "Lufthansa Cargo" }), 24591);
+      assert.equal(getAirlineIcon({ airline: "Eurowings Europe" }), 58999);
+      assert.equal(getAirlineIcon({ airline: "Swiss Global Air Lines" }), 24604);
+    });
+
+    it("should allow matching against a custom registry", () => {
+      const customRegistry = [
+        { icon: 99999, names: ["Custom Aero"], codes: ["CA", "CST"] }
+      ];
+      assert.equal(getAirlineIcon({ airline: "Custom Aero" }, customRegistry), 99999);
+      assert.equal(getAirlineIcon({ flightNumberIata: "CA100" }, customRegistry), 99999);
+    });
+
     it("should fallback to default icon for unknown airlines", () => {
       assert.equal(getAirlineIcon({ airline: "Unknown Jet", callsign: "N12345" }), DEFAULT_ICON);
       assert.equal(getAirlineIcon({}), DEFAULT_ICON);
