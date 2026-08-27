@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Configuration & Daemon (CONF)
 
-- [ ] **CONF-01**: Multi-source configuration loader resolving from `/etc/flightscanner/config.json`, `/etc/default/flightscanner`, `.env`, and default settings
+- [x] **CONF-01**: Multi-source configuration loader resolving from `/etc/flightscanner/config.json`, `/etc/default/flightscanner`, `.env`, and default settings
 - [ ] **CONF-02**: Systemd service unit file (`flightscanner.service`) and installation guide for 24/7 background operation
-- [ ] **CONF-03**: Configurable geofence coordinates, altitude bounds, MQTT broker connection, and file paths via config without code modification
+- [x] **CONF-03**: Configurable geofence coordinates, altitude bounds, MQTT broker connection, and file paths via config without code modification
 
 ### Flight Enrichment & Caching (ENRICH)
 
@@ -61,9 +61,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 4 | Pending |
-| CONF-03 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Complete |
 | ENRICH-01 | Phase 2 | Pending |
 | ENRICH-02 | Phase 2 | Pending |
 | ENRICH-03 | Phase 2 | Pending |
@@ -78,6 +78,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-01 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 15 total
 - Mapped to phases: 15
 - Unmapped: 0 ✓
