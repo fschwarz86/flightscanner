@@ -266,6 +266,29 @@ node --test test/integration.test.js
 
 ---
 
+## 🎨 Airline Icon Registry
+
+Airline icons displayed on the Awtrix matrix are managed in a single, unified registry in [`src/services/notification/formatter.js`](file:///usr/local/google/home/fschwarz/spark/flightscanner/src/services/notification/formatter.js).
+
+To add or update an airline icon, simply add a single entry to `AIRLINE_REGISTRY`:
+
+```javascript
+{
+  icon: 24591,                                                  // Awtrix icon ID
+  names: ["Lufthansa", "Lufthansa Cargo", "Discover Airlines"], // Brand names (case-insensitive)
+  codes: ["LH", "DLH", "GEC", "4Y", "OCN"]                     // IATA (2-char) & ICAO (3-char) prefixes
+}
+```
+
+The system automatically resolves icons by:
+1. Exact airline name match
+2. 2-letter IATA flight code prefix (e.g. `LH123` -> `LH`)
+3. 3-letter ICAO callsign prefix (e.g. `DLH123` -> `DLH`)
+4. Partial / substring airline name match
+5. Fallback to default flight icon (`15302`)
+
+---
+
 ## 📁 Repository Structure
 
 ```
