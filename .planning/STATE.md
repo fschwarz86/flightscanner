@@ -4,10 +4,10 @@ current_phase: 4
 current_phase_name: Systemd Service Integration & Automated Test Suite
 status: completed
 stopped_at: Phase 4 complete — all phases complete
-last_updated: "2026-09-07T08:46:00.000Z"
+last_updated: "2026-09-07T08:56:00.000Z"
 last_activity: 2026-09-07
-last_activity_desc: Completed quick task 260907-c1u
-state_head: 09aa55c
+last_activity_desc: Completed quick task 260907-cb4
+state_head: 60c384a
 progress:
   total_phases: 4
   completed_phases: 4
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-27)
 Phase: 4 of 4 (Systemd Service Integration & Automated Test Suite)
 Plan: Not started
 Status: All phases complete
-Last activity: 2026-09-07 — Completed quick task 260907-c1u: Change the notification for incoming flights to omit the destination airport if it's HAM and show '<- $ORIGIN' (similar to outgoing flights).
+Last activity: 2026-09-07 — Completed quick task 260907-cb4: Make short notification airport code configurable and match strictly by airport code (excluding XFW).
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 2]: Multi-provider flight enrichment with Flightradar24 primary, adsbdb.com fallback, local CSV type mapping, and TTL cache.
 - [Phase 3]: Multi-aircraft queue with per-callsign cooldown to evaluate all aircraft in bounding box without notification flooding.
 - [Phase 4]: Native Linux systemd service unit template for reliable 24/7 background operation.
+- [Quick 260907-cb4]: Restrict short notification matching strictly to airport code (default HAM) using isBaseAirport to avoid matching Hamburg Finkenwerder (XFW).
 
 ### Pending Todos
 
@@ -81,6 +82,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260907-c1u | Change the notification for incoming flights to omit the destination airport if it's HAM and show '<- $ORIGIN' (similar to outgoing flights). | 2026-09-07 | 09aa55c | [260907-c1u-change-the-notification-for-incoming-fli](./quick/260907-c1u-change-the-notification-for-incoming-fli/) |
+| 260907-cb4 | Make short notification airport code configurable and match strictly by airport code (excluding XFW). | 2026-09-07 | 60c384a | [260907-cb4-make-short-notification-airport-code-con](./quick/260907-cb4-make-short-notification-airport-code-con/) |
 
 ## Deferred Items
 
@@ -91,5 +93,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-09-07
-Stopped at: Completed quick task 260907-c1u
+Stopped at: Completed quick task 260907-cb4
 Resume file: None
