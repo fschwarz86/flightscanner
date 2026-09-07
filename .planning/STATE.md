@@ -4,10 +4,10 @@ current_phase: 4
 current_phase_name: Systemd Service Integration & Automated Test Suite
 status: completed
 stopped_at: Phase 4 complete — all phases complete
-last_updated: "2026-09-07T08:56:00.000Z"
+last_updated: "2026-09-07T09:07:00.000Z"
 last_activity: 2026-09-07
-last_activity_desc: Completed quick task 260907-cb4
-state_head: 60c384a
+last_activity_desc: Completed quick task 260907-d8a
+state_head: 039b038
 progress:
   total_phases: 4
   completed_phases: 4
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 3]: Multi-aircraft queue with per-callsign cooldown to evaluate all aircraft in bounding box without notification flooding.
 - [Phase 4]: Native Linux systemd service unit template for reliable 24/7 background operation.
 - [Quick 260907-cb4]: Restrict short notification matching strictly to airport code (default HAM) using isBaseAirport to avoid matching Hamburg Finkenwerder (XFW).
+- [Quick 260907-d8a]: Configurable display repetitions (default 2) with sliding 60s rate tracking reducing repetitions to 1 if >1 message/minute.
 
 ### Pending Todos
 
@@ -83,6 +84,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260907-c1u | Change the notification for incoming flights to omit the destination airport if it's HAM and show '<- $ORIGIN' (similar to outgoing flights). | 2026-09-07 | 09aa55c | [260907-c1u-change-the-notification-for-incoming-fli](./quick/260907-c1u-change-the-notification-for-incoming-fli/) |
 | 260907-cb4 | Make short notification airport code configurable and match strictly by airport code (excluding XFW). | 2026-09-07 | 60c384a | [260907-cb4-make-short-notification-airport-code-con](./quick/260907-cb4-make-short-notification-airport-code-con/) |
+| 260907-d8a | Configure display repetitions (default 2) and dynamic rate-limiting to 1 repetition if >1 message/min. | 2026-09-07 | 039b038 | [260907-d8a-configurable-display-repeat-rate-limit](./quick/260907-d8a-configurable-display-repeat-rate-limit/) |
 
 ## Deferred Items
 
@@ -93,5 +95,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-09-07
-Stopped at: Completed quick task 260907-cb4
+Stopped at: Completed quick task 260907-d8a
 Resume file: None
