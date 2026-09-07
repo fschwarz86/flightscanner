@@ -538,7 +538,7 @@ function formatNotificationText(flightData = {}, options = {}) {
  */
 function formatNotificationPayload(flightData, options = {}) {
   const icon = options.icon || getAirlineIcon(flightData);
-  const repeat = options.repeat !== undefined ? options.repeat : 3;
+  const repeat = options.repeat !== undefined ? options.repeat : 2;
   const speed = options.speed !== undefined ? options.speed : 50;
   const baseAirport = options.baseAirport || flightData?.baseAirport || "HAM";
   const text = options.text || formatNotificationText(flightData, { ...options, baseAirport });

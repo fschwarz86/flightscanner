@@ -10,6 +10,9 @@ AIRCRAFT_TYPES_CSV_PATH=/etc/flightdata/aircraft_types.csv
 # Base airport IATA code for shortened notifications (default HAM)
 BASE_AIRPORT=HAM
 
+# Number of repetitions for display notifications (default 2)
+DISPLAY_REPEAT=2
+
 # MQTT Broker connection & credentials
 MQTT_BROKER_URL=mqtt://homeassistant:1883
 MQTT_USERNAME=

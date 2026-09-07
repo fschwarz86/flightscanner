@@ -300,11 +300,20 @@ describe("Formatter Module", () => {
       const payload = formatNotificationPayload(flight);
 
       assert.equal(payload.icon, "24591");
-      assert.equal(payload.repeat, 3);
+      assert.equal(payload.repeat, 2);
       assert.equal(payload.scroll.speed, 50);
       assert.match(payload.text, /Lufthansa Flug DLH123/);
       assert.match(payload.text, /<- München \(MUC\)/);
       assert.equal(payload.text.includes("Hamburg"), false);
+    });
+
+    it("should allow overriding repeat count", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH123"
+      };
+      const payload = formatNotificationPayload(flight, { repeat: 4 });
+      assert.equal(payload.repeat, 4);
     });
 
     it("should pass baseAirport option through to payload text", () => {

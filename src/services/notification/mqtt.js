@@ -7,6 +7,13 @@ function createMqttPublisher(options = {}) {
   const brokerUrl = config.mqtt?.brokerUrl || "mqtt://localhost:1883";
   const topic = config.mqtt?.topic || "awtrix/cmd/notify";
   const baseAirport = (config.baseAirport || "HAM").trim().toUpperCase();
+  const configuredRepeat = config.repeat !== undefined
+    ? config.repeat
+    : (config.displayRepeat !== undefined ? config.displayRepeat : 2);
+  const rateLimitWindowMs = options.rateLimitWindowMs || 60000;
+  const nowFn = options.now || Date.now;
+  let recentMessageTimestamps = [];
+
   const mqttOptions = {
     clientId: config.mqtt?.clientId || `flightscanner_${Math.random().toString(16).slice(2, 8)}`,
     reconnectPeriod: 5000,
@@ -45,13 +52,28 @@ function createMqttPublisher(options = {}) {
   }
 
   async function publishNotification(flightData, payloadOptions = {}) {
+    const now = nowFn();
+    const windowStart = now - rateLimitWindowMs;
+    recentMessageTimestamps = recentMessageTimestamps.filter((ts) => ts > windowStart);
+
+    let effectiveRepeat = payloadOptions.repeat !== undefined ? payloadOptions.repeat : configuredRepeat;
+    if (recentMessageTimestamps.length >= 1 && effectiveRepeat > 1) {
+      logger.debug(
+        `High notification rate (>1 msg/min): reducing repeat from ${effectiveRepeat} to 1`
+      );
+      effectiveRepeat = 1;
+    }
+
+    recentMessageTimestamps.push(now);
+
     const payload = formatNotificationPayload(flightData, {
       baseAirport,
-      ...payloadOptions
+      ...payloadOptions,
+      repeat: effectiveRepeat
     });
     const messageStr = JSON.stringify(payload);
 
-    logger.info(`[NOTIFY] ${payload.text} (Icon: ${payload.icon})`);
+    logger.info(`[NOTIFY] ${payload.text} (Icon: ${payload.icon}, Repeat: ${payload.repeat})`);
     if (flightData && flightData.source) {
       logger.debug(`[NOTIFY] Data provider for notification: "${flightData.source}"`);
     }
@@ -75,6 +97,7 @@ function createMqttPublisher(options = {}) {
   }
 
   function close() {
+    recentMessageTimestamps = [];
     if (client) {
       client.end(true);
       client = null;
@@ -87,7 +110,8 @@ function createMqttPublisher(options = {}) {
     connect,
     publishNotification,
     close,
-    isConnected: () => isConnected
+    isConnected: () => isConnected,
+    getRecentMessageCount: () => recentMessageTimestamps.length
   };
 }
 

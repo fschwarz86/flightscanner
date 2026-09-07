@@ -101,6 +101,10 @@ function applyEnvMapToConfig(config, env) {
   if (env.BASE_AIRPORT) config.baseAirport = env.BASE_AIRPORT.trim().toUpperCase();
   else if (env.HOME_AIRPORT) config.baseAirport = env.HOME_AIRPORT.trim().toUpperCase();
 
+  if (env.DISPLAY_REPEAT !== undefined && env.DISPLAY_REPEAT !== "") config.repeat = parseInt(env.DISPLAY_REPEAT, 10);
+  else if (env.REPEAT !== undefined && env.REPEAT !== "") config.repeat = parseInt(env.REPEAT, 10);
+  else if (env.NOTIFICATION_REPEAT !== undefined && env.NOTIFICATION_REPEAT !== "") config.repeat = parseInt(env.NOTIFICATION_REPEAT, 10);
+
   if (env.MQTT_BROKER_URL) config.mqtt.brokerUrl = env.MQTT_BROKER_URL;
   if (env.MQTT_USERNAME !== undefined && env.MQTT_USERNAME !== "") config.mqtt.username = env.MQTT_USERNAME;
   if (env.MQTT_PASSWORD !== undefined && env.MQTT_PASSWORD !== "") config.mqtt.password = env.MQTT_PASSWORD;
@@ -165,6 +169,18 @@ function validateConfig(config) {
     if (typeof config.baseAirport !== "string" || !config.baseAirport.trim()) {
       throw new Error("Invalid baseAirport: must be a non-empty string airport code (e.g., HAM)");
     }
+  }
+
+  if (config.displayRepeat !== undefined && config.repeat === undefined) {
+    config.repeat = config.displayRepeat;
+  }
+
+  if (config.repeat !== undefined) {
+    const repeatNum = Number(config.repeat);
+    if (isNaN(repeatNum) || !Number.isInteger(repeatNum) || repeatNum < 0) {
+      throw new Error(`Invalid repeat: (${config.repeat}) must be a non-negative integer`);
+    }
+    config.repeat = repeatNum;
   }
 
   return true;

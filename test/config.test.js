@@ -20,6 +20,9 @@ describe("Config Module", () => {
     delete process.env.MQTT_CLIENT_ID;
     delete process.env.BASE_AIRPORT;
     delete process.env.HOME_AIRPORT;
+    delete process.env.DISPLAY_REPEAT;
+    delete process.env.REPEAT;
+    delete process.env.NOTIFICATION_REPEAT;
     delete process.env.GEOFENCE_MIN_LAT;
     delete process.env.GEOFENCE_MAX_LAT;
     delete process.env.GEOFENCE_MIN_LON;
@@ -47,6 +50,7 @@ describe("Config Module", () => {
       assert.equal(config.dump1090FilePath, defaultConfig.dump1090FilePath);
       assert.equal(config.mqtt.brokerUrl, defaultConfig.mqtt.brokerUrl);
       assert.equal(config.baseAirport, "HAM");
+      assert.equal(config.repeat, 2);
       assert.equal(config.geofence.minLat, 53.65);
       assert.equal(config.geofence.maxLat, 53.72);
       assert.equal(config.altitude.minFt, 2000);
@@ -58,6 +62,7 @@ describe("Config Module", () => {
       const customConfig = {
         dump1090FilePath: "/tmp/custom-aircraft.json",
         baseAirport: "BER",
+        repeat: 4,
         mqtt: {
           brokerUrl: "mqtt://192.168.1.50:1883",
           topic: "custom/topic"
@@ -72,6 +77,7 @@ describe("Config Module", () => {
       const config = loadConfig(jsonConfigPath);
       assert.equal(config.dump1090FilePath, "/tmp/custom-aircraft.json");
       assert.equal(config.baseAirport, "BER");
+      assert.equal(config.repeat, 4);
       assert.equal(config.mqtt.brokerUrl, "mqtt://192.168.1.50:1883");
       assert.equal(config.mqtt.topic, "custom/topic");
       assert.equal(config.mqtt.clientId, "flightscanner"); // preserved from default
@@ -86,6 +92,7 @@ describe("Config Module", () => {
 # Comments should be ignored
 MQTT_BROKER_URL=mqtt://mosquitto.local:1883
 BASE_AIRPORT=MUC
+DISPLAY_REPEAT=3
 GEOFENCE_MIN_LAT=52.123
 ALTITUDE_MAX_FT=15000
 `;
@@ -94,6 +101,7 @@ ALTITUDE_MAX_FT=15000
       const config = loadConfig(envConfigPath);
       assert.equal(config.mqtt.brokerUrl, "mqtt://mosquitto.local:1883");
       assert.equal(config.baseAirport, "MUC");
+      assert.equal(config.repeat, 3);
       assert.equal(config.geofence.minLat, 52.123);
       assert.equal(config.altitude.maxFt, 15000);
     });
@@ -102,17 +110,20 @@ ALTITUDE_MAX_FT=15000
       const jsonConfigPath = path.join(tempDir, "config.json");
       fs.writeFileSync(jsonConfigPath, JSON.stringify({
         baseAirport: "BER",
+        repeat: 5,
         mqtt: { brokerUrl: "mqtt://from-file:1883" }
       }), "utf8");
 
       process.env.MQTT_BROKER_URL = "mqtt://from-env:1883";
       process.env.BASE_AIRPORT = "FRA";
+      process.env.DISPLAY_REPEAT = "1";
       process.env.GEOFENCE_MIN_LAT = "54.10";
       process.env.ALTITUDE_MIN_FT = "3500";
 
       const config = loadConfig(jsonConfigPath);
       assert.equal(config.mqtt.brokerUrl, "mqtt://from-env:1883");
       assert.equal(config.baseAirport, "FRA");
+      assert.equal(config.repeat, 1);
       assert.equal(config.geofence.minLat, 54.10);
       assert.equal(config.altitude.minFt, 3500);
     });
@@ -121,6 +132,17 @@ ALTITUDE_MAX_FT=15000
       process.env.HOME_AIRPORT = "ZRH";
       const config = loadConfig();
       assert.equal(config.baseAirport, "ZRH");
+    });
+
+    it("should accept REPEAT or NOTIFICATION_REPEAT as alias for DISPLAY_REPEAT", () => {
+      process.env.REPEAT = "4";
+      const config1 = loadConfig();
+      assert.equal(config1.repeat, 4);
+
+      delete process.env.REPEAT;
+      process.env.NOTIFICATION_REPEAT = "5";
+      const config2 = loadConfig();
+      assert.equal(config2.repeat, 5);
     });
   });
 
@@ -176,6 +198,25 @@ ALTITUDE_MAX_FT=15000
 
       const nonStringAirport = { ...defaultConfig, baseAirport: 123 };
       assert.throws(() => validateConfig(nonStringAirport), /Invalid baseAirport/);
+    });
+
+    it("should throw when repeat is negative or not an integer", () => {
+      const negativeRepeat = { ...defaultConfig, repeat: -1 };
+      assert.throws(() => validateConfig(negativeRepeat), /Invalid repeat/);
+
+      const nonIntRepeat = { ...defaultConfig, repeat: 1.5 };
+      assert.throws(() => validateConfig(nonIntRepeat), /Invalid repeat/);
+
+      const invalidStrRepeat = { ...defaultConfig, repeat: "not-a-number" };
+      assert.throws(() => validateConfig(invalidStrRepeat), /Invalid repeat/);
+    });
+
+    it("should accept valid non-negative integer for repeat", () => {
+      const validRepeat0 = { ...defaultConfig, repeat: 0 };
+      assert.equal(validateConfig(validRepeat0), true);
+
+      const validRepeat5 = { ...defaultConfig, repeat: 5 };
+      assert.equal(validateConfig(validRepeat5), true);
     });
   });
 });

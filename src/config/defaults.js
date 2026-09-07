@@ -2,6 +2,7 @@ const defaultConfig = {
   dump1090FilePath: "/run/dump1090-fa/aircraft.json",
   aircraftTypesCsvPath: "/etc/flightdata/aircraft_types.csv",
   baseAirport: "HAM",
+  repeat: 2,
   mqtt: {
     brokerUrl: "mqtt://homeassistant:1883",
     username: "",
