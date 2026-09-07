@@ -5,6 +5,7 @@ const {
   formatNotificationText,
   formatNotificationPayload,
   formatAirport,
+  isBaseAirport,
   DEFAULT_ICON
 } = require("../src/services/notification/formatter");
 
@@ -106,6 +107,32 @@ describe("Formatter Module", () => {
     });
   });
 
+  describe("isBaseAirport", () => {
+    it("should return true when airport contains parenthesized base code", () => {
+      assert.equal(isBaseAirport("Hamburg (HAM)", "HAM"), true);
+      assert.equal(isBaseAirport("München (MUC)", "MUC"), true);
+      assert.equal(isBaseAirport("Berlin (BER)", "ber"), true);
+    });
+
+    it("should return true for exact airport code match", () => {
+      assert.equal(isBaseAirport("HAM", "HAM"), true);
+      assert.equal(isBaseAirport("ham", "HAM"), true);
+      assert.equal(isBaseAirport("BER", "BER"), true);
+    });
+
+    it("should return false for XFW when base airport is HAM", () => {
+      assert.equal(isBaseAirport("Hamburg-Finkenwerder (XFW)", "HAM"), false);
+      assert.equal(isBaseAirport("Hamburg (XFW)", "HAM"), false);
+      assert.equal(isBaseAirport("XFW", "HAM"), false);
+    });
+
+    it("should return false for non-matching airports", () => {
+      assert.equal(isBaseAirport("Frankfurt (FRA)", "HAM"), false);
+      assert.equal(isBaseAirport("", "HAM"), false);
+      assert.equal(isBaseAirport("HAM", ""), false);
+    });
+  });
+
   describe("formatNotificationText", () => {
     it("should format Hamburg arrival flight text with '<- $ORIGIN' and omit destination", () => {
       const flight = {
@@ -200,6 +227,65 @@ describe("Formatter Module", () => {
       const text = formatNotificationText(flight);
       assert.equal(text, "Flug TEST01 (keine Daten)");
     });
+
+    it("should NOT omit destination when destination is Hamburg Finkenwerder (XFW)", () => {
+      const flight = {
+        airline: "Airbus Transport",
+        callsign: "BGA123",
+        origin: "TLS",
+        destination: "XFW",
+        aircraft: "Beluga"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Airbus Transport Flug BGA123 (Beluga) Toulouse (TLS) -> Hamburg-Finkenwerder (XFW)");
+    });
+
+    it("should NOT omit origin when origin is Hamburg Finkenwerder (XFW)", () => {
+      const flight = {
+        airline: "Airbus Transport",
+        callsign: "BGA456",
+        origin: "XFW",
+        destination: "TLS",
+        aircraft: "Beluga"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Airbus Transport Flug BGA456 (Beluga) Hamburg-Finkenwerder (XFW) -> Toulouse (TLS)");
+    });
+
+    it("should support configurable baseAirport in options", () => {
+      const arrival = {
+        airline: "Lufthansa",
+        callsign: "LH123",
+        origin: "HAM",
+        destination: "MUC",
+        aircraft: "A320"
+      };
+      const arrivalText = formatNotificationText(arrival, { baseAirport: "MUC" });
+      assert.equal(arrivalText, "Lufthansa Flug LH123 (A320) <- Hamburg (HAM)");
+
+      const departure = {
+        airline: "Lufthansa",
+        callsign: "LH456",
+        origin: "MUC",
+        destination: "HAM",
+        aircraft: "A320"
+      };
+      const departureText = formatNotificationText(departure, { baseAirport: "MUC" });
+      assert.equal(departureText, "Lufthansa Flug LH456 (A320) -> Hamburg (HAM)");
+    });
+
+    it("should support baseAirport specified in flightData", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "LH123",
+        origin: "HAM",
+        destination: "BER",
+        aircraft: "A320",
+        baseAirport: "BER"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug LH123 (A320) <- Hamburg (HAM)");
+    });
   });
 
   describe("formatNotificationPayload", () => {
@@ -219,6 +305,18 @@ describe("Formatter Module", () => {
       assert.match(payload.text, /Lufthansa Flug DLH123/);
       assert.match(payload.text, /<- München \(MUC\)/);
       assert.equal(payload.text.includes("Hamburg"), false);
+    });
+
+    it("should pass baseAirport option through to payload text", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH123",
+        origin: "HAM",
+        destination: "BER",
+        aircraft: "Airbus A320"
+      };
+      const payload = formatNotificationPayload(flight, { baseAirport: "BER" });
+      assert.match(payload.text, /<- Hamburg \(HAM\)/);
     });
   });
 });

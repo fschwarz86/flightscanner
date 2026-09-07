@@ -18,6 +18,8 @@ describe("Config Module", () => {
     delete process.env.MQTT_PASSWORD;
     delete process.env.MQTT_TOPIC;
     delete process.env.MQTT_CLIENT_ID;
+    delete process.env.BASE_AIRPORT;
+    delete process.env.HOME_AIRPORT;
     delete process.env.GEOFENCE_MIN_LAT;
     delete process.env.GEOFENCE_MAX_LAT;
     delete process.env.GEOFENCE_MIN_LON;
@@ -44,6 +46,7 @@ describe("Config Module", () => {
       const config = loadConfig("/nonexistent/file.json");
       assert.equal(config.dump1090FilePath, defaultConfig.dump1090FilePath);
       assert.equal(config.mqtt.brokerUrl, defaultConfig.mqtt.brokerUrl);
+      assert.equal(config.baseAirport, "HAM");
       assert.equal(config.geofence.minLat, 53.65);
       assert.equal(config.geofence.maxLat, 53.72);
       assert.equal(config.altitude.minFt, 2000);
@@ -54,6 +57,7 @@ describe("Config Module", () => {
       const jsonConfigPath = path.join(tempDir, "config.json");
       const customConfig = {
         dump1090FilePath: "/tmp/custom-aircraft.json",
+        baseAirport: "BER",
         mqtt: {
           brokerUrl: "mqtt://192.168.1.50:1883",
           topic: "custom/topic"
@@ -67,6 +71,7 @@ describe("Config Module", () => {
 
       const config = loadConfig(jsonConfigPath);
       assert.equal(config.dump1090FilePath, "/tmp/custom-aircraft.json");
+      assert.equal(config.baseAirport, "BER");
       assert.equal(config.mqtt.brokerUrl, "mqtt://192.168.1.50:1883");
       assert.equal(config.mqtt.topic, "custom/topic");
       assert.equal(config.mqtt.clientId, "flightscanner"); // preserved from default
@@ -80,6 +85,7 @@ describe("Config Module", () => {
       const customEnv = `
 # Comments should be ignored
 MQTT_BROKER_URL=mqtt://mosquitto.local:1883
+BASE_AIRPORT=MUC
 GEOFENCE_MIN_LAT=52.123
 ALTITUDE_MAX_FT=15000
 `;
@@ -87,6 +93,7 @@ ALTITUDE_MAX_FT=15000
 
       const config = loadConfig(envConfigPath);
       assert.equal(config.mqtt.brokerUrl, "mqtt://mosquitto.local:1883");
+      assert.equal(config.baseAirport, "MUC");
       assert.equal(config.geofence.minLat, 52.123);
       assert.equal(config.altitude.maxFt, 15000);
     });
@@ -94,17 +101,26 @@ ALTITUDE_MAX_FT=15000
     it("should prioritize process.env variables over file configuration", () => {
       const jsonConfigPath = path.join(tempDir, "config.json");
       fs.writeFileSync(jsonConfigPath, JSON.stringify({
+        baseAirport: "BER",
         mqtt: { brokerUrl: "mqtt://from-file:1883" }
       }), "utf8");
 
       process.env.MQTT_BROKER_URL = "mqtt://from-env:1883";
+      process.env.BASE_AIRPORT = "FRA";
       process.env.GEOFENCE_MIN_LAT = "54.10";
       process.env.ALTITUDE_MIN_FT = "3500";
 
       const config = loadConfig(jsonConfigPath);
       assert.equal(config.mqtt.brokerUrl, "mqtt://from-env:1883");
+      assert.equal(config.baseAirport, "FRA");
       assert.equal(config.geofence.minLat, 54.10);
       assert.equal(config.altitude.minFt, 3500);
+    });
+
+    it("should accept HOME_AIRPORT as alias for BASE_AIRPORT", () => {
+      process.env.HOME_AIRPORT = "ZRH";
+      const config = loadConfig();
+      assert.equal(config.baseAirport, "ZRH");
     });
   });
 
@@ -152,6 +168,14 @@ ALTITUDE_MAX_FT=15000
 
       const invalidCache = { ...defaultConfig, cacheTtlMs: -50 };
       assert.throws(() => validateConfig(invalidCache), /Invalid cacheTtlMs/);
+    });
+
+    it("should throw when baseAirport is empty or not a string", () => {
+      const emptyAirport = { ...defaultConfig, baseAirport: "" };
+      assert.throws(() => validateConfig(emptyAirport), /Invalid baseAirport/);
+
+      const nonStringAirport = { ...defaultConfig, baseAirport: 123 };
+      assert.throws(() => validateConfig(nonStringAirport), /Invalid baseAirport/);
     });
   });
 });

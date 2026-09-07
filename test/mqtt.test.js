@@ -53,4 +53,37 @@ describe("MQTT Publisher Module", () => {
     publisher.close();
     assert.equal(closed, true);
   });
+
+  it("should format notifications using config.baseAirport", async () => {
+    let publishedPayload = null;
+    const mockClient = {
+      publish: (topic, message, opts, cb) => {
+        publishedPayload = JSON.parse(message);
+        cb(null);
+      },
+      end: () => {}
+    };
+
+    const config = {
+      baseAirport: "BER",
+      mqtt: {
+        brokerUrl: "mqtt://homeassistant:1883",
+        topic: "awtrix/cmd/notify"
+      }
+    };
+
+    const publisher = createMqttPublisher({ config, mockClient });
+    const flight = {
+      airline: "Lufthansa",
+      callsign: "DLH123",
+      origin: "MUC",
+      destination: "BER",
+      aircraft: "Airbus A320"
+    };
+
+    const success = await publisher.publishNotification(flight);
+    assert.equal(success, true);
+    assert.match(publishedPayload.text, /<- München \(MUC\)/);
+    assert.equal(publishedPayload.text.includes("Berlin"), false);
+  });
 });

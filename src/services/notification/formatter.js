@@ -216,6 +216,7 @@ function getAirlineIcon(flightData = {}, registry = AIRLINE_REGISTRY) {
 const AIRPORT_CITIES = {
   // Germany & DACH
   "HAM": "Hamburg",
+  "XFW": "Hamburg-Finkenwerder",
   "MUC": "München",
   "FRA": "Frankfurt",
   "BER": "Berlin",
@@ -256,6 +257,7 @@ const AIRPORT_CITIES = {
   "CDG": "Paris",
   "ORY": "Paris",
   "NCE": "Nizza",
+  "TLS": "Toulouse",
   "AMS": "Amsterdam",
   "BRU": "Brüssel",
   "LUX": "Luxemburg",
@@ -456,12 +458,33 @@ function formatAirport(rawAirport) {
 }
 
 /**
+ * Checks whether a formatted airport string matches a target base airport code.
+ * Matches parenthesized code (e.g. "Hamburg (HAM)" for "HAM") or exact code ("HAM").
+ * Does NOT match by city name alone to avoid conflating different airports in the same city (e.g., HAM vs XFW).
+ * @param {string} formattedAirport
+ * @param {string} baseAirportCode
+ * @returns {boolean}
+ */
+function isBaseAirport(formattedAirport, baseAirportCode) {
+  if (!formattedAirport || !baseAirportCode) return false;
+  const upperAirport = formattedAirport.trim().toUpperCase();
+  const upperCode = baseAirportCode.trim().toUpperCase();
+
+  return upperAirport.includes(`(${upperCode})`) || upperAirport === upperCode;
+}
+
+/**
  * Formats notification text in German based on available route and aircraft details.
  * Prefers IATA flight number if available (e.g., "LH123" instead of "DLH123").
  * @param {Object} flightData
+ * @param {Object|string} options - Formatting options or baseAirport code
  * @returns {string}
  */
-function formatNotificationText(flightData = {}) {
+function formatNotificationText(flightData = {}, options = {}) {
+  const baseAirport = (
+    (typeof options === "string" ? options : (options?.baseAirport || flightData?.baseAirport)) || "HAM"
+  ).trim().toUpperCase();
+
   const airline = flightData.airline && flightData.airline !== "Unbekannte Fluggesellschaft" ? flightData.airline : "";
   const flightCode = (flightData.flightNumberIata || flightData.callsignIata || flightData.callsign || "").trim();
   const displayCallsign = flightCode && flightCode !== "Unbekannt" ? flightCode : "";
@@ -474,20 +497,14 @@ function formatNotificationText(flightData = {}) {
   const flightLabel = airline ? `${airline} Flug ${displayCallsign}`.trim() : (displayCallsign ? `Flug ${displayCallsign}` : "Flug");
   const aircraftTag = aircraft ? ` (${aircraft})` : "";
 
-  const isHamburgOrigin = origin && (
-    origin.toUpperCase().includes("(HAM)") ||
-    origin.toLowerCase().startsWith("hamburg")
-  );
-  const isHamburgDestination = destination && (
-    destination.toUpperCase().includes("(HAM)") ||
-    destination.toLowerCase().startsWith("hamburg")
-  );
+  const isBaseOrigin = isBaseAirport(origin, baseAirport);
+  const isBaseDestination = isBaseAirport(destination, baseAirport);
 
-  if (isHamburgOrigin && !isHamburgDestination) {
+  if (isBaseOrigin && !isBaseDestination) {
     return `${flightLabel}${aircraftTag} -> ${destination || "Unbekannt"}`;
   }
 
-  if (isHamburgDestination && !isHamburgOrigin) {
+  if (isBaseDestination && !isBaseOrigin) {
     return `${flightLabel}${aircraftTag} <- ${origin || "Unbekannt"}`;
   }
 
@@ -523,7 +540,8 @@ function formatNotificationPayload(flightData, options = {}) {
   const icon = options.icon || getAirlineIcon(flightData);
   const repeat = options.repeat !== undefined ? options.repeat : 3;
   const speed = options.speed !== undefined ? options.speed : 50;
-  const text = options.text || formatNotificationText(flightData);
+  const baseAirport = options.baseAirport || flightData?.baseAirport || "HAM";
+  const text = options.text || formatNotificationText(flightData, { ...options, baseAirport });
 
   return {
     icon: String(icon),
@@ -540,6 +558,7 @@ module.exports = {
   formatNotificationText,
   formatNotificationPayload,
   formatAirport,
+  isBaseAirport,
   AIRPORT_CITIES,
   DEFAULT_ICON,
   AIRLINE_REGISTRY,

@@ -6,6 +6,7 @@ function createMqttPublisher(options = {}) {
   const config = options.config || {};
   const brokerUrl = config.mqtt?.brokerUrl || "mqtt://localhost:1883";
   const topic = config.mqtt?.topic || "awtrix/cmd/notify";
+  const baseAirport = (config.baseAirport || "HAM").trim().toUpperCase();
   const mqttOptions = {
     clientId: config.mqtt?.clientId || `flightscanner_${Math.random().toString(16).slice(2, 8)}`,
     reconnectPeriod: 5000,
@@ -44,7 +45,10 @@ function createMqttPublisher(options = {}) {
   }
 
   async function publishNotification(flightData, payloadOptions = {}) {
-    const payload = formatNotificationPayload(flightData, payloadOptions);
+    const payload = formatNotificationPayload(flightData, {
+      baseAirport,
+      ...payloadOptions
+    });
     const messageStr = JSON.stringify(payload);
 
     logger.info(`[NOTIFY] ${payload.text} (Icon: ${payload.icon})`);

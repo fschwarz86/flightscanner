@@ -98,6 +98,8 @@ function mergeObjects(target, source) {
 function applyEnvMapToConfig(config, env) {
   if (env.DUMP1090_FILE_PATH) config.dump1090FilePath = env.DUMP1090_FILE_PATH;
   if (env.AIRCRAFT_TYPES_CSV_PATH) config.aircraftTypesCsvPath = env.AIRCRAFT_TYPES_CSV_PATH;
+  if (env.BASE_AIRPORT) config.baseAirport = env.BASE_AIRPORT.trim().toUpperCase();
+  else if (env.HOME_AIRPORT) config.baseAirport = env.HOME_AIRPORT.trim().toUpperCase();
 
   if (env.MQTT_BROKER_URL) config.mqtt.brokerUrl = env.MQTT_BROKER_URL;
   if (env.MQTT_USERNAME !== undefined && env.MQTT_USERNAME !== "") config.mqtt.username = env.MQTT_USERNAME;
@@ -157,6 +159,12 @@ function validateConfig(config) {
 
   if (isNaN(config.cacheTtlMs) || config.cacheTtlMs < 0) {
     throw new Error(`Invalid cacheTtlMs: (${config.cacheTtlMs}) must be a non-negative number`);
+  }
+
+  if (config.baseAirport !== undefined) {
+    if (typeof config.baseAirport !== "string" || !config.baseAirport.trim()) {
+      throw new Error("Invalid baseAirport: must be a non-empty string airport code (e.g., HAM)");
+    }
   }
 
   return true;
