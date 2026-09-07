@@ -107,7 +107,7 @@ describe("Formatter Module", () => {
   });
 
   describe("formatNotificationText", () => {
-    it("should format Hamburg arrival flight text with $CITY ($CODE)", () => {
+    it("should format Hamburg arrival flight text with '<- $ORIGIN' and omit destination", () => {
       const flight = {
         airline: "Lufthansa",
         callsign: "DLH123",
@@ -116,10 +116,10 @@ describe("Formatter Module", () => {
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) München (MUC) -> Hamburg (HAM)");
+      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) <- München (MUC)");
     });
 
-    it("should prefer IATA flightcode if available over ICAO callsign", () => {
+    it("should prefer IATA flightcode if available over ICAO callsign for Hamburg arrival", () => {
       const flight = {
         airline: "Lufthansa",
         flightNumberIata: "LH123",
@@ -129,7 +129,31 @@ describe("Formatter Module", () => {
         aircraft: "Airbus A320"
       };
       const text = formatNotificationText(flight);
-      assert.equal(text, "Lufthansa Flug LH123 (Airbus A320) München (MUC) -> Hamburg (HAM)");
+      assert.equal(text, "Lufthansa Flug LH123 (Airbus A320) <- München (MUC)");
+    });
+
+    it("should format transit/overflight text with both origin and destination when neither is Hamburg", () => {
+      const flight = {
+        airline: "Lufthansa",
+        flightNumberIata: "LH456",
+        callsign: "DLH456",
+        origin: "MUC",
+        destination: "ARN",
+        aircraft: "Airbus A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug LH456 (Airbus A320) München (MUC) -> Stockholm (ARN)");
+    });
+
+    it("should format Hamburg arrival when origin is unknown", () => {
+      const flight = {
+        airline: "Lufthansa",
+        callsign: "DLH123",
+        destination: "HAM",
+        aircraft: "Airbus A320"
+      };
+      const text = formatNotificationText(flight);
+      assert.equal(text, "Lufthansa Flug DLH123 (Airbus A320) <- Unbekannt");
     });
 
     it("should format departure from Hamburg with destination $CITY ($CODE)", () => {
@@ -193,8 +217,8 @@ describe("Formatter Module", () => {
       assert.equal(payload.repeat, 3);
       assert.equal(payload.scroll.speed, 50);
       assert.match(payload.text, /Lufthansa Flug DLH123/);
-      assert.match(payload.text, /München \(MUC\)/);
-      assert.match(payload.text, /Hamburg \(HAM\)/);
+      assert.match(payload.text, /<- München \(MUC\)/);
+      assert.equal(payload.text.includes("Hamburg"), false);
     });
   });
 });

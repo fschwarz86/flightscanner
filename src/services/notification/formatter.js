@@ -478,9 +478,17 @@ function formatNotificationText(flightData = {}) {
     origin.toUpperCase().includes("(HAM)") ||
     origin.toLowerCase().startsWith("hamburg")
   );
+  const isHamburgDestination = destination && (
+    destination.toUpperCase().includes("(HAM)") ||
+    destination.toLowerCase().startsWith("hamburg")
+  );
 
-  if (isHamburgOrigin) {
+  if (isHamburgOrigin && !isHamburgDestination) {
     return `${flightLabel}${aircraftTag} -> ${destination || "Unbekannt"}`;
+  }
+
+  if (isHamburgDestination && !isHamburgOrigin) {
+    return `${flightLabel}${aircraftTag} <- ${origin || "Unbekannt"}`;
   }
 
   if (origin && destination) {
