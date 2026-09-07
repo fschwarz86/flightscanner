@@ -17,9 +17,11 @@ Flightscanner monitors local airspace telemetry from `dump1090-fa`, enriches sig
 - 🛡️ **Debounce Queue & Cooldown Management:**
   - Per-flight cooldown window (default: 30 minutes) prevents duplicate alert spam for loitering aircraft.
   - Multi-aircraft FIFO queue spaces out notifications to prevent overlapping animations on the Awtrix matrix.
-- 🇩🇪 **Localized German Notifications:** Custom text formatting for arrivals, departures, and partial routes with airline icon mappings (Lufthansa, Eurowings, British Airways, KLM, Air France, Emirates, etc.).
+- 🇩🇪 **Localized German Notifications:** Concise, glanceable text formatting for arrivals (`<- $ORIGIN`), departures (`-> $DESTINATION`), and transit overflights (`$ORIGIN -> $DESTINATION`).
+- 🛫 **Configurable Base Airport:** Customizable base airport code (default `HAM` / Hamburg) with strict code matching so nearby airfields (e.g., Hamburg-Finkenwerder `XFW`) are never accidentally omitted.
+- 🔁 **Configurable & Rate-Adaptive Display Repetitions:** Configurable scroll repetitions (default: 2) conforming to Awtrix payload specification, automatically reduced to 1 repetition if more than 1 notification is dispatched per minute.
 - 🐧 **Production Systemd Daemon:** Designed for 24/7 background service execution with structured `journalctl` logging, automatic restart (`Restart=always`), and multi-tier configuration (`/etc/` support).
-- 🧪 **Comprehensive Automated Test Suite:** 47 unit and integration tests with 100% pass rate.
+- 🧪 **Comprehensive Automated Test Suite:** 79 unit and integration tests with 100% pass rate.
 
 ---
 
@@ -97,6 +99,8 @@ Flightscanner resolves configuration hierarchically in the following order of pr
 |---|---|---|---|
 | `DUMP1090_FILE_PATH` | `dump1090FilePath` | `/run/dump1090-fa/aircraft.json` | Path to dump1090 aircraft JSON file |
 | `AIRCRAFT_TYPES_CSV_PATH` | `aircraftTypesCsvPath` | `/etc/flightdata/aircraft_types.csv` | Path to ICAO aircraft designator CSV |
+| `BASE_AIRPORT` | `baseAirport` | `HAM` | Base airport IATA code for shortened notification formatting |
+| `DISPLAY_REPEAT` | `repeat` | `2` | Number of display scroll repetitions (drops to 1 if >1 msg/min) |
 | `MQTT_BROKER_URL` | `mqtt.brokerUrl` | `mqtt://homeassistant:1883` | MQTT broker connection URL |
 | `MQTT_TOPIC` | `mqtt.topic` | `awtrix/cmd/notify` | MQTT topic for Awtrix notifications |
 | `MQTT_CLIENT_ID` | `mqtt.clientId` | `flightscanner` | MQTT client identifier |
@@ -120,7 +124,7 @@ Flightscanner resolves configuration hierarchically in the following order of pr
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/fschwarz/flightscanner.git
+   git clone https://github.com/fschwarz86/flightscanner.git
    cd flightscanner
    ```
 
@@ -263,6 +267,26 @@ node --test test/formatter.test.js
 node --test test/mqtt.test.js
 node --test test/integration.test.js
 ```
+
+---
+
+## 📺 Notification Formatting & Awtrix Integration
+
+Flightscanner formats flight notifications specifically for the [Awtrix Light LED matrix](https://blueforcer.github.io/awtrix-ng/reference/payload/) via the MQTT topic `awtrix/cmd/notify`:
+
+### Route Direction Formatting
+- **Incoming Flights (`<- $ORIGIN`):** When the destination matches the configured base airport (default: `HAM`), the destination is omitted for brevity:  
+  `Lufthansa Flug LH123 (Airbus A320) <- München (MUC)`
+- **Outgoing Flights (`-> $DESTINATION`):** When the origin matches the base airport, the origin is omitted:  
+  `Lufthansa Flug LH456 (Airbus A320) -> Frankfurt (FRA)`
+- **Transit Flights (`$ORIGIN -> $DESTINATION`):** Overflights show both origin and destination:  
+  `British Airways Flug BAW964 (A320) London (LHR) -> Hamburg (HAM)`
+- **Strict Airport Matching:** Airport codes are matched strictly against the configured `BASE_AIRPORT` code (`(HAM)` or exact code `HAM`). Nearby airports like Hamburg-Finkenwerder (`XFW`) or Toulouse (`TLS`) retain full origin and destination details.
+
+### Rate-Adaptive Display Repetitions
+- The number of times a notification scrolls across the display is configurable via `DISPLAY_REPEAT` / `repeat` (defaults to **2**).
+- When airspace traffic increases and more than **1 notification is dispatched within a 60-second window**, the repetition count automatically reduces to **1** to prevent display backlog.
+- Once 60 seconds pass without further notifications, display repetitions revert back to the configured default.
 
 ---
 
