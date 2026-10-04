@@ -40,6 +40,7 @@ describe("MQTT Publisher Module", () => {
     assert.equal(publishedTopic, "awtrix/cmd/notify");
     assert.equal(publishedPayload.icon, "24591");
     assert.equal(publishedOpts.qos, 0);
+    assert.ok(publishedOpts.properties?.messageExpiryInterval > 0, "should include MQTT v5 messageExpiryInterval");
   });
 
   it("should close client cleanly", () => {
@@ -147,5 +148,88 @@ describe("MQTT Publisher Module", () => {
 
     await publisher.publishNotification({ callsign: "TST1" });
     assert.equal(publishedPayload.repeat, 4);
+  });
+
+  it("should drop stale notifications that exceed notificationMaxAgeMs", async () => {
+    let published = false;
+    const mockClient = {
+      publish: (topic, message, opts, cb) => { published = true; cb(null); },
+      end: () => {}
+    };
+
+    const now = Date.now();
+    const publisher = createMqttPublisher({
+      config: { notificationMaxAgeMs: 60000 }, // 60 second TTL
+      mockClient,
+      now: () => now
+    });
+
+    // enqueuedAt is 120 seconds ago — well past the 60s TTL
+    const staleFlight = { callsign: "OLD1", _enqueuedAt: now - 120000 };
+    const result = await publisher.publishNotification(staleFlight);
+
+    assert.equal(result, false, "stale notification should be dropped");
+    assert.equal(published, false, "should not publish a stale notification");
+  });
+
+  it("should publish fresh notifications that are within notificationMaxAgeMs", async () => {
+    let published = false;
+    const mockClient = {
+      publish: (topic, message, opts, cb) => { published = true; cb(null); },
+      end: () => {}
+    };
+
+    const now = Date.now();
+    const publisher = createMqttPublisher({
+      config: { notificationMaxAgeMs: 60000 }, // 60 second TTL
+      mockClient,
+      now: () => now
+    });
+
+    // enqueuedAt is 10 seconds ago — well within the 60s TTL
+    const freshFlight = { callsign: "NEW1", _enqueuedAt: now - 10000 };
+    const result = await publisher.publishNotification(freshFlight);
+
+    assert.equal(result, true, "fresh notification should be published");
+    assert.equal(published, true, "should publish a fresh notification");
+  });
+
+  it("should publish when _enqueuedAt is not set (backwards compatibility)", async () => {
+    let published = false;
+    const mockClient = {
+      publish: (topic, message, opts, cb) => { published = true; cb(null); },
+      end: () => {}
+    };
+
+    const publisher = createMqttPublisher({
+      config: { notificationMaxAgeMs: 1 }, // extremely short TTL
+      mockClient
+    });
+
+    // No _enqueuedAt — should skip the staleness check entirely
+    const flight = { callsign: "NOTS1" };
+    const result = await publisher.publishNotification(flight);
+
+    assert.equal(result, true, "notification without enqueuedAt should always be published");
+    assert.equal(published, true);
+  });
+
+  it("should include MQTT v5 messageExpiryInterval in publish options", async () => {
+    let capturedOpts = null;
+    const mockClient = {
+      publish: (topic, message, opts, cb) => { capturedOpts = opts; cb(null); },
+      end: () => {}
+    };
+
+    const publisher = createMqttPublisher({
+      config: { notificationMaxAgeMs: 120000 }, // 120 seconds
+      mockClient
+    });
+
+    await publisher.publishNotification({ callsign: "EXP1" });
+
+    assert.ok(capturedOpts.properties, "publish options should include properties");
+    assert.equal(capturedOpts.properties.messageExpiryInterval, 120,
+      "messageExpiryInterval should be notificationMaxAgeMs converted to seconds");
   });
 });

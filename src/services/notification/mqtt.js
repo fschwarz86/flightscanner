@@ -12,12 +12,24 @@ function createMqttPublisher(options = {}) {
     : (config.displayRepeat !== undefined ? config.displayRepeat : 2);
   const rateLimitWindowMs = options.rateLimitWindowMs || 60000;
   const nowFn = options.now || Date.now;
+  // Maximum age (ms) a notification may have before being silently dropped.
+  // Prevents stale flights from showing on the Awtrix display after it was off.
+  const notificationMaxAgeMs = config.notificationMaxAgeMs !== undefined
+    ? config.notificationMaxAgeMs
+    : 300000; // default: 5 minutes
+  // MQTT 5 message expiry in seconds (same duration, capped at 2^32-1 per spec)
+  const messageExpiryIntervalSec = Math.min(
+    Math.round(notificationMaxAgeMs / 1000),
+    4294967295
+  );
+
   let recentMessageTimestamps = [];
 
   const mqttOptions = {
     clientId: config.mqtt?.clientId || `flightscanner_${Math.random().toString(16).slice(2, 8)}`,
     reconnectPeriod: 5000,
-    connectTimeout: 10000
+    connectTimeout: 10000,
+    protocolVersion: 5  // enables Message Expiry Interval on publish
   };
 
   if (config.mqtt?.username) mqttOptions.username = config.mqtt.username;
@@ -53,6 +65,19 @@ function createMqttPublisher(options = {}) {
 
   async function publishNotification(flightData, payloadOptions = {}) {
     const now = nowFn();
+
+    // Staleness guard: drop notifications that have been waiting too long.
+    // This prevents a backlog of stale flight alerts from playing when the
+    // Awtrix display was powered off but still connected to the MQTT broker.
+    const enqueuedAt = flightData._enqueuedAt;
+    if (enqueuedAt !== undefined && (now - enqueuedAt) > notificationMaxAgeMs) {
+      const ageS = Math.round((now - enqueuedAt) / 1000);
+      logger.warn(
+        `[NOTIFY] Dropping stale notification (age: ${ageS}s > max ${Math.round(notificationMaxAgeMs / 1000)}s) — display may have been off`
+      );
+      return false;
+    }
+
     const windowStart = now - rateLimitWindowMs;
     recentMessageTimestamps = recentMessageTimestamps.filter((ts) => ts > windowStart);
 
@@ -84,7 +109,15 @@ function createMqttPublisher(options = {}) {
         return resolve(false);
       }
 
-      client.publish(topic, messageStr, { qos: 0, retain: false }, (err) => {
+      // Include Message Expiry Interval (MQTT v5) so the broker discards the
+      // message if the device is truly offline and reconnects after the TTL.
+      const publishOpts = {
+        qos: 0,
+        retain: false,
+        properties: { messageExpiryInterval: messageExpiryIntervalSec }
+      };
+
+      client.publish(topic, messageStr, publishOpts, (err) => {
         if (err) {
           logger.error(`Failed to publish notification to ${topic}: ${err.message}`);
           resolve(false);

@@ -20,8 +20,9 @@ const defaultConfig = {
     minFt: 2000,
     maxFt: 10000
   },
-  cooldownMs: 900000,     // 15 minutes
-  cacheTtlMs: 14400000,   // 4 hours
+  cooldownMs: 900000,           // 15 minutes
+  cacheTtlMs: 14400000,         // 4 hours
+  notificationMaxAgeMs: 300000, // 5 minutes — drop stale notifications if Awtrix was off
   logLevel: "info"
 };
 

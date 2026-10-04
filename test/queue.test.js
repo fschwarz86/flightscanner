@@ -75,4 +75,15 @@ describe("FlightQueue Module", () => {
     assert.equal(queue.isOnCooldown("F99"), false);
     assert.equal(queue.getQueueLength(), 0);
   });
+
+  it("should stamp _enqueuedAt on aircraft when enqueued", async () => {
+    const before = Date.now();
+    const flight = { flight: "DLH789" };
+    queue.enqueue(flight);
+
+    const after = Date.now();
+    assert.ok(flight._enqueuedAt >= before, "_enqueuedAt should be at or after enqueue start");
+    assert.ok(flight._enqueuedAt <= after, "_enqueuedAt should be at or before enqueue end");
+    assert.equal(typeof flight._enqueuedAt, "number");
+  });
 });

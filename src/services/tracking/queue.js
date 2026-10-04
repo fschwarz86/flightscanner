@@ -59,6 +59,7 @@ class FlightQueue {
     }
 
     this.setCooldown(key);
+    aircraft._enqueuedAt = Date.now();
     this.queue.push(aircraft);
     logger.debug(`Enqueued flight ${key} (queue length: ${this.queue.length})`);
 
