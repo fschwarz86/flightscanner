@@ -4,10 +4,10 @@ current_phase: 4
 current_phase_name: Systemd Service Integration & Automated Test Suite
 status: completed
 stopped_at: Phase 4 complete — all phases complete
-last_updated: "2026-09-07T09:23:00.000Z"
-last_activity: 2026-09-07
-last_activity_desc: Completed quick task 260907-e1b
-state_head: b8d1530
+last_updated: "2026-10-04T12:48:00.000Z"
+last_activity: 2026-10-04
+last_activity_desc: Completed quick task 261004-hps
+state_head: 6193d6a
 progress:
   total_phases: 4
   completed_phases: 4
@@ -87,6 +87,7 @@ None yet.
 | 260907-cb4 | Make short notification airport code configurable and match strictly by airport code (excluding XFW). | 2026-09-07 | 60c384a | [260907-cb4-make-short-notification-airport-code-con](./quick/260907-cb4-make-short-notification-airport-code-con/) |
 | 260907-d8a | Configure display repetitions (default 2) and dynamic rate-limiting to 1 repetition if >1 message/min. | 2026-09-07 | 039b038 | [260907-d8a-configurable-display-repeat-rate-limit](./quick/260907-d8a-configurable-display-repeat-rate-limit/) |
 | 260907-e1b | Update README with latest changes and fix repo URL to fschwarz86/flightscanner. | 2026-09-07 | b8d1530 | [260907-e1b-update-readme-and-repo-url](./quick/260907-e1b-update-readme-and-repo-url/) |
+| 261004-hps | Add notification staleness guard and MQTT v5 message expiry to drop stale flight alerts when Awtrix display was off. | 2026-10-04 | 6193d6a | [261004-hps-add-notification-ttl-to-drop-stale-fligh](./quick/261004-hps-add-notification-ttl-to-drop-stale-fligh/) |
 
 ## Deferred Items
 
